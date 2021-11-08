@@ -1,5 +1,5 @@
 import ast
-
+import random
 import nltk, re, pprint
 from nltk import word_tokenize
 import pysolr
@@ -95,6 +95,19 @@ def import_q_a(q_a_file):
     return q_a_dict
 
 
+def test_q_a(q_a_dict, num_q, seed):
+    random.seed(seed)
+    source_articles = random.sample(q_a_dict.keys(), num_q)
+    test_q_a_list = []
+    for source in source_articles:
+        num_src_q = len(q_a_dict[source])
+        q_num = random.randint(0, num_src_q)
+        test_q_a_list.append({q_a_dict[source][q_num][0]: (source, q_a_dict[source][q_num][1])})
+    return test_q_a_list
+
+
 if __name__ == '__main__':
     q_a = import_q_a('data.txt')
+    test_questions = test_q_a(q_a, num_q=5, seed=0)
+    a = 5
     # test()
