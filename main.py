@@ -1,3 +1,5 @@
+import ast
+
 import nltk, re, pprint
 from nltk import word_tokenize
 import pysolr
@@ -44,12 +46,14 @@ def test():
             'id': article,
             'contents': articles_content[article]
         }])
-    results = solr.search('contents:"medicine"')
+
+
+    results = solr.search('contents:"rebels"')
 
     print("Saw {0} result(s).".format(len(results)))
 
     for result in results:
-        print("The title is '{0}'.".format(result['id']))
+        print("The article id is '{0}'.".format(result['id']))
 
     data = []
     with open('data.txt', encoding='utf-8') as f:
@@ -81,5 +85,16 @@ def test():
     # article = articles_content[articles_content.keys()[0]]
 
 
+def import_q_a(q_a_file):
+    q_a_dict = {}
+    with open(q_a_file, encoding='utf-8') as f:
+        raw_content = f.readlines()
+    for row in raw_content:
+        raw_line = list(ast.literal_eval(row))
+        q_a_dict[raw_line[0]] = raw_line[1]
+    return q_a_dict
+
+
 if __name__ == '__main__':
-    test()
+    q_a = import_q_a('data.txt')
+    # test()
