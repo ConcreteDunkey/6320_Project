@@ -2,6 +2,7 @@ import ast
 import random
 import nltk, re, pprint
 from nltk import word_tokenize
+from rake_nltk import Rake
 import pysolr
 from nltk.stem import WordNetLemmatizer
 # from pywsd.lesk import simple_lesk  # Broken ?
@@ -97,7 +98,7 @@ def import_q_a(q_a_file):
 
 def test_q_a(q_a_dict, num_q, seed):
     random.seed(seed)
-    source_articles = random.sample(q_a_dict.keys(), num_q)
+    source_articles = random.sample(list(q_a_dict.keys()), num_q)
     test_q_a_list = []
     for source in source_articles:
         num_src_q = len(q_a_dict[source])
@@ -106,8 +107,25 @@ def test_q_a(q_a_dict, num_q, seed):
     return test_q_a_list
 
 
+def get_keywords(question):
+    rake = Rake()
+    rake.extract_keywords_from_text(question)
+    keys_extracted = rake.get_ranked_phrases()
+    return keys_extracted
+
+
+def answer_question(question):
+    keywords = get_keywords(question)
+
+
+def answer_questions(questions):
+    for question in questions:
+        answer_question(list(question.keys())[0])
+
+
 if __name__ == '__main__':
     q_a = import_q_a('data.txt')
     test_questions = test_q_a(q_a, num_q=5, seed=0)
+    answer_questions(test_questions)
     a = 5
     # test()
