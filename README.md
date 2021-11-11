@@ -12,3 +12,11 @@ Then, in the Python console:
 * import nltk
 * nltk.download('popular')
 * nltk.download('book')  ??
+
+To start running Solr:
+* navigate to directory
+* open powerterminal
+* bin\solr.cmd start
+* open servers/solr/jim_core
+* delete everything
+* 
