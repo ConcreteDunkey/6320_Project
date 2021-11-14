@@ -1,3 +1,8 @@
+keywords = ['multiframe "?', 'adsf', '']
+
+keywords = [s.translate({ord(c): None for c in '\'\"?'}) for s in keywords]
+keywords = [s.strip() for s in keywords]
+print(keywords)
 # import ast
 # import random
 # import nltk, re, pprint
