@@ -5,10 +5,12 @@ import nltk
 import re
 import time
 import pprint
-from rake_nltk import Rake
 import pysolr
 from nltk.stem import WordNetLemmatizer
 from pathlib import Path
+from answerer import \
+    BadAnswerer, \
+    KeywordAnswerer
 
 
 SOLR_CORE = 'solr_core'
@@ -100,7 +102,6 @@ def art_pipeline(article):
             lemmatized_text.append(word_net_lemmatizer.lemmatize(w[0], get_wn_pos(w[1])))
         else:
             lemmatized_text.append(w[0])
-    a = 6
     return sentences, tokens, tagged_text, lemmatized_text
 
 
@@ -133,34 +134,21 @@ def test_q_a(q_a, num_q, seed):
     return test_q_a_list[0: num_q]
 
 
-def get_keywords(question):
-    rake = Rake()
-    rake.extract_keywords_from_text(question)
-    keys_extracted = rake.get_ranked_phrases()
-    return keys_extracted
-
-
-def answer_question(question, solr):
-    keywords = get_keywords(question)
-    # keywords = ['Canadian', 'Alberta']
-    prefix = 'contents:"'
-    postfix = '"'
-    infix = '" OR contents:"'
-    keyword_string = prefix + infix.join(keywords) + postfix
-    query = keyword_string
-    results = solr.search(query)
-    return results
-
-
-def answer_questions(questions, solr):
+def count_correctly_answered_questions(questions, method):
+    a = method(solr_core)
+    correct_art = 0
+    correct_sent = 0
     for question in questions:
-        res = answer_question(question['q'], solr)
-        res_list = []
-        for result in res:
-            res_list.append(result['id'])
-        print(f"Expected article {question['article']}, got article {' '.join(res_list)}")
+        res_art, res_sent = a.answer(question['q'])
+        if question['article'] == int(res_art):
+            correct_art += 1
+        if question['a'] in res_sent:
+            correct_sent += 1
+    return correct_art, correct_sent
 
 
+# Adds oracular answers for all questions to q_a dataset
+# Turns out this is unneeded, but worth retaining.
 def oracle(q_a):
     articles = load_articles()
     zero_answers = 0
@@ -184,16 +172,24 @@ def oracle(q_a):
 
 def test():
     response = connect_solr()
-    data_loaded = False  # TODO Write something to determine if articles are loaded
+    data_loaded = True  # TODO Write something to determine if articles are loaded
+    # method = BadAnswerer
+    method = KeywordAnswerer
+
     if not data_loaded:
         load_solr()
     q_a = import_q_a('data.txt')
     all_questions = all_q_a(q_a)
-    oracle(all_questions)
-    test_questions = test_q_a(all_questions, num_q=5, seed=0)
-    # answer_questions(test_questions, index)
-    a = 5
-    # test()
+    # oracle(all_questions)
+    test_questions = test_q_a(all_questions, num_q=250, seed=0)
+
+    # question_set = test_questions
+    question_set = all_questions
+
+    correct_art, correct_sent = count_correctly_answered_questions(question_set, method)
+    print(f"Of {len(question_set)} total questions, "
+          f"the correct article was found {correct_art} times "
+          f"and the correct sentence was found {correct_sent} times.")
 
 
 if __name__ == '__main__':
