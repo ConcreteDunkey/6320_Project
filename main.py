@@ -1,17 +1,32 @@
 import ast
+import copy
 import random
 import nltk
 import re
+import time
 import pprint
 from rake_nltk import Rake
 import pysolr
 from nltk.stem import WordNetLemmatizer
-# from pywsd.lesk import simple_lesk  # Broken ?
-# Maybe.... ? from https://github.com/alvations/pywsd/blob/master/pywsd/utils.py#L129
 from pathlib import Path
 
 
-SOLR_CORE = 'jim_core'
+SOLR_CORE = 'solr_core'
+solr_core = pysolr.Solr('dummy')
+
+
+class JimTimer:
+    def __init__(self):
+        self.prev = time.perf_counter()
+
+    def lap(self):
+        new = time.perf_counter()
+        lap_time = new-self.prev
+        self.prev = new
+        return f"time:{lap_time:.04f}"
+
+
+Timer = JimTimer()
 
 
 def get_wn_pos(tag):
@@ -29,10 +44,10 @@ def get_wn_pos(tag):
     return res
 
 
-def start_solr():
-    solr_core = SOLR_CORE
-    solr = pysolr.Solr('http://localhost:8983/solr/' + solr_core, always_commit=True, timeout=10)
-    return solr
+def connect_solr():
+    global solr_core
+    solr_core = pysolr.Solr('http://localhost:8983/solr/' + SOLR_CORE, always_commit=False, timeout=10)
+    return solr_core
 
 
 def load_articles():
@@ -49,17 +64,31 @@ def load_articles():
     return articles_content
 
 
-def load_solr(solr):
+def load_solr():
+    global solr_core
+    num_docs = 0  # Keep track of number of additions
+    Timer.lap()
     articles_content = load_articles()
     for article in articles_content:
-        art_pipelined = pipeline(article)
-        solr.add([{
-            'id': article,
-            'contents': articles_content[article]
+        sentences, tokens, tagged_text, lemmatized_text = art_pipeline(articles_content[article])
+        solr_core.add([{
+            'id': article + "_0",
+            'contents': articles_content[article],
+            'type':'art'
         }])
+        num_docs += 1
+        for i, sentence in enumerate(sentences):
+            solr_core.add([{
+                'id': article + "_" + str(i+1),
+                'contents': sentence,
+                'type': 'sentence'
+            }])
+            num_docs += 1
+        print(f"Added article {article} after {Timer.lap()}")
+    solr_core.commit()
 
 
-def pipeline(article):
+def art_pipeline(article):
     sentences = nltk.sent_tokenize(article)
     tokens = nltk.word_tokenize(article)
     tagged_text = nltk.pos_tag(tokens)
@@ -72,7 +101,7 @@ def pipeline(article):
         else:
             lemmatized_text.append(w[0])
     a = 6
-    return a
+    return sentences, tokens, tagged_text, lemmatized_text
 
 
 def import_q_a(q_a_file):
@@ -85,19 +114,6 @@ def import_q_a(q_a_file):
     return q_a_dict
 
 
-def test_q_a(q_a_dict, num_q, seed):
-    random.seed(seed)
-    source_articles = random.sample(list(q_a_dict.keys()), num_q)
-    test_q_a_list = []
-    for source in source_articles:
-        num_src_q = len(q_a_dict[source])
-        q_num = random.randint(0, num_src_q)
-        test_q_a_list.append({'q': q_a_dict[source][q_num][0],
-                              'article': source,
-                              'a': q_a_dict[source][q_num][1]})
-    return test_q_a_list
-
-
 def all_q_a(q_a_dict):
     source_articles = q_a_dict.keys()
     q_a_list = []
@@ -108,6 +124,13 @@ def all_q_a(q_a_dict):
                              'article': source,
                              'a': q_a_dict[source][q_num][1]})
     return q_a_list
+
+
+def test_q_a(q_a, num_q, seed):
+    random.seed(seed)
+    test_q_a_list = copy.deepcopy(q_a)
+    random.shuffle(test_q_a_list)
+    return test_q_a_list[0: num_q]
 
 
 def get_keywords(question):
@@ -160,14 +183,14 @@ def oracle(q_a):
 
 
 def test():
-    index = start_solr()
-    articles_not_loaded = False  # TODO Write something to determine if articles are loaded
-    if articles_not_loaded:
-        load_articles(index)
+    response = connect_solr()
+    data_loaded = False  # TODO Write something to determine if articles are loaded
+    if not data_loaded:
+        load_solr()
     q_a = import_q_a('data.txt')
-    # test_questions = test_q_a(q_a, num_q=5, seed=0)
     all_questions = all_q_a(q_a)
-    all_answers = oracle(all_questions)
+    oracle(all_questions)
+    test_questions = test_q_a(all_questions, num_q=5, seed=0)
     # answer_questions(test_questions, index)
     a = 5
     # test()
