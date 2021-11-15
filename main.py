@@ -76,14 +76,21 @@ def load_solr():
         solr_core.add([{
             'id': article + "_0",
             'contents': articles_content[article],
-            'type':'art'
+            'type':'art',
+            'tokens': tokens,
+            'tagged_text': tagged_text,
+            'lemmatized_text': lemmatized_text
         }])
         num_docs += 1
         for i, sentence in enumerate(sentences):
+            _, tokens, tagged_text, lemmatized_text = art_pipeline(sentence)
             solr_core.add([{
                 'id': article + "_" + str(i+1),
                 'contents': sentence,
-                'type': 'sentence'
+                'type': 'sentence',
+                'tokens': tokens,
+                'tagged_text': tagged_text,
+                'lemmatized_text': lemmatized_text
             }])
             num_docs += 1
         print(f"Added article {article} after {Timer.lap()}")
@@ -172,7 +179,7 @@ def oracle(q_a):
 
 def test():
     response = connect_solr()
-    data_loaded = True  # TODO Write something to determine if articles are loaded
+    data_loaded = False  # TODO Write something to determine if articles are loaded
     # method = BadAnswerer
     method = KeywordAnswerer
 
