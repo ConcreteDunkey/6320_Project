@@ -6,13 +6,14 @@ import re
 import time
 import pprint
 import pysolr
+import spacy
 from nltk.stem import WordNetLemmatizer
 from pathlib import Path
 from answerer import \
     BadAnswerer, \
     KeywordAnswerer
 
-
+NER = spacy.load("en_core_web_sm")
 SOLR_CORE = 'solr_core'
 solr_core = pysolr.Solr('dummy')
 
@@ -72,25 +73,27 @@ def load_solr():
     Timer.lap()
     articles_content = load_articles()
     for article in articles_content:
-        sentences, tokens, tagged_text, lemmatized_text = art_pipeline(articles_content[article])
+        sentences, tokens, tagged_text, lemmatized_text, ner_text = art_pipeline(articles_content[article])
         solr_core.add([{
             'id': article + "_0",
             'contents': articles_content[article],
             'type':'art',
             'tokens': tokens,
             'tagged_text': tagged_text,
-            'lemmatized_text': lemmatized_text
+            'lemmatized_text': lemmatized_text,
+            'named_entity' : ner_text
         }])
         num_docs += 1
         for i, sentence in enumerate(sentences):
-            _, tokens, tagged_text, lemmatized_text = art_pipeline(sentence)
+            _, tokens, tagged_text, lemmatized_text, ner_text = art_pipeline(sentence)
             solr_core.add([{
                 'id': article + "_" + str(i+1),
                 'contents': sentence,
                 'type': 'sentence',
                 'tokens': tokens,
                 'tagged_text': tagged_text,
-                'lemmatized_text': lemmatized_text
+                'lemmatized_text': lemmatized_text,
+                'named_entity' : ner_text
             }])
             num_docs += 1
         print(f"Added article {article} after {Timer.lap()}")
@@ -109,7 +112,11 @@ def art_pipeline(article):
             lemmatized_text.append(word_net_lemmatizer.lemmatize(w[0], get_wn_pos(w[1])))
         else:
             lemmatized_text.append(w[0])
-    return sentences, tokens, tagged_text, lemmatized_text
+    named_entities = NER(article)
+    ner_list = []
+    for word in named_entities.ents:
+        ner_list.append((word.text,word.label_))
+    return sentences, tokens, tagged_text, lemmatized_text, ner_list
 
 
 def import_q_a(q_a_file):
