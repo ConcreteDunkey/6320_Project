@@ -7,6 +7,9 @@ Running the project:
 * pip install numpy
 * pip install nltk
 * pip install pywsd
+* pip install -U pip setuptools wheel
+* pip install -U spacy
+* python -m spacy download en_core_web_sm
 
 Then, in the Python console:
 * import nltk
