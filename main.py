@@ -11,7 +11,8 @@ from nltk.stem import WordNetLemmatizer
 from pathlib import Path
 from answerer import \
     BadAnswerer, \
-    KeywordAnswerer
+    KeywordAnswerer, \
+    SimpleNEAnswerer
 
 NER = spacy.load("en_core_web_sm")
 SOLR_CORE = 'solr_core'
@@ -115,7 +116,8 @@ def art_pipeline(article):
     named_entities = NER(article)
     ner_list = []
     for word in named_entities.ents:
-        ner_list.append((word.text,word.label_))
+        ner_list.append((word.text, word.label_))
+    print(ner_list)
     return sentences, tokens, tagged_text, lemmatized_text, ner_list
 
 
@@ -148,7 +150,7 @@ def test_q_a(q_a, num_q, seed):
     return test_q_a_list[0: num_q]
 
 
-def count_correctly_answered_questions(questions, method):
+def count_correctly_answered_questions(questions, method, detailed_results=False):
     a = method(solr_core)
     correct_art = 0
     correct_sent = 0
@@ -186,21 +188,22 @@ def oracle(q_a):
 
 def test():
     response = connect_solr()
-    data_loaded = False  # TODO Write something to determine if articles are loaded
+    data_loaded = True  # TODO Write something to determine if articles are loaded
     # method = BadAnswerer
-    method = KeywordAnswerer
+    # method = KeywordAnswerer
+    method = SimpleNEAnswerer
 
     if not data_loaded:
         load_solr()
     q_a = import_q_a('data.txt')
     all_questions = all_q_a(q_a)
     # oracle(all_questions)
-    test_questions = test_q_a(all_questions, num_q=250, seed=0)
+    test_questions = test_q_a(all_questions, num_q=10, seed=0)
 
-    # question_set = test_questions
-    question_set = all_questions
+    question_set = test_questions
+    # question_set = all_questions
 
-    correct_art, correct_sent = count_correctly_answered_questions(question_set, method)
+    correct_art, correct_sent = count_correctly_answered_questions(question_set, method, detailed_results=True)
     print(f"Of {len(question_set)} total questions, "
           f"the correct article was found {correct_art} times "
           f"and the correct sentence was found {correct_sent} times.")

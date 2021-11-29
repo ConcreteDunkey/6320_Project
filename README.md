@@ -22,4 +22,3 @@ To start running Solr:
 * bin\solr.cmd start
 * open servers/solr/jim_core
 * delete everything
-* 

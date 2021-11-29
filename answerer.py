@@ -63,3 +63,23 @@ class KeywordAnswerer(Answerer):
         query += ' type:"sentence"'
         results = self.solr.search(query)
         return results
+
+
+class SimpleNEAnswerer(Answerer):
+    def __init__(self, solr):
+        super().__init__(solr)
+
+    def this_method(self, question):
+        keywords = get_keywords(question)
+        # The following line is needed to remove quotation marks from the search string
+        # from https://stackoverflow.com/a/3939381
+        keywords = [s.translate({ord(c): None for c in '\'\"?'}) for s in keywords]
+        keywords = [s.strip() for s in keywords]
+        prefix = 'contents:"'
+        postfix = '"'
+        infix = '" OR contents:"'
+        keyword_string = prefix + infix.join(keywords) + postfix
+        query = keyword_string
+        query += ' type:"sentence"'
+        results = self.solr.search(query)
+        return results
