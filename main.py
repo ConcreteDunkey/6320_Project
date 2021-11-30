@@ -12,6 +12,7 @@ from pathlib import Path
 from answerer import \
     BadAnswerer, \
     KeywordAnswerer, \
+    SingleKeywordAnswerer, \
     SimpleNEAnswerer
 
 NER = spacy.load("en_core_web_sm")
@@ -160,7 +161,7 @@ def count_correctly_answered_questions(questions, method, detailed_results=False
             correct_art += 1
         if question['a'] in res_sent:
             correct_sent += 1
-        else:
+        elif detailed_results:
             print(f"Predicted {int(res_art)}, actually {question['article']}.")
             print(f"   Question: {question['q']}")
             print(f"   Guessed answer sentence: {res_sent}")
@@ -194,24 +195,30 @@ def oracle(q_a):
 def test():
     response = connect_solr()
     data_loaded = True  # TODO Write something to determine if articles are loaded
+    test_only = False
+    # test_only = True
     # method = BadAnswerer
     # method = KeywordAnswerer
-    method = SimpleNEAnswerer
+    method = SingleKeywordAnswerer
+    # method = SimpleNEAnswerer
 
     if not data_loaded:
         load_solr()
     q_a = import_q_a('data.txt')
     all_questions = all_q_a(q_a)
     # oracle(all_questions)
-    test_questions = test_q_a(all_questions, num_q=10, seed=0)
 
-    question_set = test_questions
-    # question_set = all_questions
-
-    correct_art, correct_sent = count_correctly_answered_questions(question_set, method, detailed_results=True)
+    if test_only:
+        test_questions = test_q_a(all_questions, num_q=10, seed=0)
+        question_set = test_questions
+        correct_art, correct_sent = count_correctly_answered_questions(question_set, method, detailed_results=True)
+    else:
+        question_set = all_questions
+        correct_art, correct_sent = count_correctly_answered_questions(question_set, method, detailed_results=False)
     print(f"Of {len(question_set)} total questions, "
           f"the correct article was found {correct_art} times "
           f"and the correct sentence was found {correct_sent} times.")
+
 
 
 if __name__ == '__main__':
