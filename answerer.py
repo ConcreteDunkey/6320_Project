@@ -45,13 +45,24 @@ def get_keywords(question):
 
 
 def get_single_keywords(question):
-    rake = Rake()
-    rake.extract_keywords_from_text(question)
-    keys_extracted = rake.get_ranked_phrases()
+    keys_extracted = get_keywords(question)
     single_keywords = []
     for key in keys_extracted:
         subkeys = key.split()
         for subkey in subkeys:
+            single_keywords.append(subkey)
+    return single_keywords
+
+
+def get_single_keywords_with_blacklist(question):
+    keys_extracted = get_keywords(question)
+    blacklist = ["one", "type"]
+    single_keywords = []
+    for key in keys_extracted:
+        subkeys = key.split()
+        for subkey in subkeys:
+            if subkey in blacklist:
+                continue
             single_keywords.append(subkey)
     return single_keywords
 
@@ -61,8 +72,10 @@ class KeywordAnswerer(Answerer):
         super().__init__(solr)
         # print('From __init__ in KeywordAnswerer')
 
+    keyword_method = staticmethod(get_keywords)
+
     def this_method(self, question):
-        keywords = get_keywords(question)
+        keywords = self.keyword_method(question)
         # The following line is needed to remove quotation marks from the search string
         # from https://stackoverflow.com/a/3939381
         keywords = [s.translate({ord(c): None for c in '\'\"?'}) for s in keywords]
@@ -77,24 +90,27 @@ class KeywordAnswerer(Answerer):
         return results
 
 
-class SingleKeywordAnswerer(Answerer):
+class SingleKeywordAnswerer(KeywordAnswerer):
     def __init__(self, solr):
         super().__init__(solr)
         # print('From __init__ in KeywordAnswerer')
 
+    keyword_method = staticmethod(get_single_keywords)
+
     def this_method(self, question):
-        keywords = get_single_keywords(question)
-        # The following line is needed to remove quotation marks from the search string
-        # from https://stackoverflow.com/a/3939381
-        keywords = [s.translate({ord(c): None for c in '\'\"?'}) for s in keywords]
-        keywords = [s.strip() for s in keywords]
-        prefix = 'contents:"'
-        postfix = '"'
-        infix = '" OR contents:"'
-        keyword_string = prefix + infix.join(keywords) + postfix
-        query = keyword_string
-        query += ' type:"sentence"'
-        results = self.solr.search(query)
+        results = super().this_method(question)
+        return results
+
+
+class SingleKeywordWithBlacklistAnswerer(KeywordAnswerer):
+    def __init__(self, solr):
+        super().__init__(solr)
+        # print('From __init__ in KeywordAnswerer')
+
+    keyword_method = staticmethod(get_single_keywords_with_blacklist)
+
+    def this_method(self, question):
+        results = super().this_method(question)
         return results
 
 

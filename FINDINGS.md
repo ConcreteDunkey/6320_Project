@@ -11,3 +11,4 @@ KeywordAnswerer: Of 2505 total questions, the correct article was found 1453 tim
 Next method - broke RAKE keywords into component pieces. For instance, from the question: "On what did Skousen analyze ink and pencil remnants?" we previously found only 2 compound keywords ("skousen analyze ink" "pencil remnants"); now we find 5 ("skousen" "analyze" "ink" "pencil" "remnants")
 Of 2505 total questions, the correct article was found 2206 times and the correct sentence was found 1380 times. (55%)
 
+Next method - blacklisting just two words ("one", "type"), which seem to be particular to questions, did not improve results.

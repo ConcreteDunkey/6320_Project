@@ -13,6 +13,7 @@ from answerer import \
     BadAnswerer, \
     KeywordAnswerer, \
     SingleKeywordAnswerer, \
+    SingleKeywordWithBlacklistAnswerer, \
     SimpleNEAnswerer
 
 NER = spacy.load("en_core_web_sm")
@@ -195,11 +196,12 @@ def oracle(q_a):
 def test():
     response = connect_solr()
     data_loaded = True  # TODO Write something to determine if articles are loaded
-    test_only = False
-    # test_only = True
+    # test_only = False
+    test_only = True
     # method = BadAnswerer
     # method = KeywordAnswerer
     method = SingleKeywordAnswerer
+    # method = SingleKeywordWithBlacklistAnswerer
     # method = SimpleNEAnswerer
 
     if not data_loaded:
@@ -218,7 +220,6 @@ def test():
     print(f"Of {len(question_set)} total questions, "
           f"the correct article was found {correct_art} times "
           f"and the correct sentence was found {correct_sent} times.")
-
 
 
 if __name__ == '__main__':
