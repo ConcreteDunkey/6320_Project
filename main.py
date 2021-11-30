@@ -160,6 +160,11 @@ def count_correctly_answered_questions(questions, method, detailed_results=False
             correct_art += 1
         if question['a'] in res_sent:
             correct_sent += 1
+        else:
+            print(f"Predicted {int(res_art)}, actually {question['article']}.")
+            print(f"   Question: {question['q']}")
+            print(f"   Guessed answer sentence: {res_sent}")
+            print(f"   Answer should contain: {question['a']}")
     return correct_art, correct_sent
 
 
