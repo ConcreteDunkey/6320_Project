@@ -195,7 +195,8 @@ def oracle(q_a):
 
 
 def quest_types(q_as):
-    quest_words = ["who", "what", "where", "when", "why", "how"]
+    # quest_words = ["who", "what", "where", "when", "why", "how"]
+    quest_words = ["who", "what", "when"]
     quest_words_ct = {}
     for word in quest_words:
         quest_words_ct[word] = 0
@@ -221,6 +222,8 @@ def test():
     data_loaded = True  # TODO Write something to determine if articles are loaded
     # test_only = False
     test_only = True
+    test_num_q = 100
+    test_seed = 0
     # method = BadAnswerer
     # method = KeywordAnswerer
     method = SingleKeywordAnswerer
@@ -233,10 +236,10 @@ def test():
     all_questions = all_q_a(q_a)
     # oracle(all_questions)
 
-    quest_types(all_questions)
+    # quest_types(all_questions)
 
     if test_only:
-        test_questions = test_q_a(all_questions, num_q=10, seed=0)
+        test_questions = test_q_a(all_questions, num_q=test_num_q, seed=test_seed)
         question_set = test_questions
         correct_art, correct_sent = count_correctly_answered_questions(question_set, method, detailed_results=True)
     else:

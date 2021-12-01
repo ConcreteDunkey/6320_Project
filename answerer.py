@@ -87,7 +87,11 @@ class KeywordAnswerer(Answerer):
         keyword_string = prefix + infix.join(keywords) + postfix
         query = keyword_string
         query += ' type:"sentence"'
-        results = self.solr.search(query)
+        results = self.solr.search(query, **{
+                'hl': 'true',
+                'rows': 30,
+                'fl': '*,score'
+            })
         return results
 
 
@@ -130,6 +134,6 @@ class SimpleNEAnswerer(Answerer):
         infix = '" OR contents:"'
         keyword_string = prefix + infix.join(keywords) + postfix
         query = keyword_string
-        query += ' type:"sentence"'
+        query += ' type:"sentence" '
         results = self.solr.search(query)
         return results
