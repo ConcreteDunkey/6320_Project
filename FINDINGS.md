@@ -12,3 +12,49 @@ Next method - broke RAKE keywords into component pieces. For instance, from the 
 Of 2505 total questions, the correct article was found 2206 times and the correct sentence was found 1380 times. (55%)
 
 Next method - blacklisting just two words ("one", "type"), which seem to be particular to questions, did not improve results.
+
+While preparing to add NE utiliation, explored how question words are used. There is a list of questions, below, with multiple question words in a single question. Need to use better system (POS tagging? syntatic analysis?)
+
+
+
+*Troublesome questions (section to be cleaned):*
+G:\Source\6320_Project\venv\Scripts\python.exe "C:\Program Files\JetBrains\PyCharm 2021.2.2\plugins\python\helpers\pydev\pydevd.py" --multiproc --qt-support=auto --client 127.0.0.1 --port 52510 --file G:/Source/6320_Project/main.py
+Connected to pydev debugger (build 212.5284.44)
+{'q': 'When mixed wit clay, what is bitumen called?', 'article': 181, 'a': 'asphaltum'}
+{'q': 'In what years where phonautograms converted to audible sound?', 'article': 282, 'a': '2000s'}
+{'q': 'What happens when frequency decreases in the bass?', 'article': 282, 'a': 'recording amplitude increased'}
+{'q': 'How many colors were 45s available in when first released?', 'article': 282, 'a': 'seven colors'}
+{'q': 'Who used cognitive science to learn how people understand comics?', 'article': 58, 'a': 'Neil Cohn'}
+{'q': 'How were comics published when serialization became less common?', 'article': 58, 'a': 'as albums'}
+{'q': 'What was the issue date when this superhero team debuted?', 'article': 220, 'a': 'Nov. 1961'}
+{'q': 'In what city was Marvel based when it was founded?', 'article': 220, 'a': 'New York City'}
+{'q': 'How old was Mabel when she became deaf?', 'article': 56, 'a': '15'}
+{'q': 'Who taught Bell when he was very young?', 'article': 56, 'a': 'father'}
+{'q': 'Who was on Cygnet I when it crashed?', 'article': 56, 'a': 'Selfridge'}
+{'q': 'Where did the Bells live when the Halifax Explosion happened?', 'article': 56, 'a': 'Beinn Bhreagh'}
+{'q': 'What was one reason why the Dominican Order was established?', 'article': 287, 'a': 'to combat heresy'}
+{'q': 'What happens when a plant remains totipotent?', 'article': 222, 'a': 'ability to give rise to a new individual plant'}
+{'q': 'How far do penguins travel when they migrate?', 'article': 109, 'a': 'over 1,000 km'}
+{'q': 'What happens when the site attachment is made?', 'article': 109, 'a': 'they show high site-fidelity'}
+{'q': 'What group of people debate when humans stated wearing clothes?', 'article': 196, 'a': 'Scientists'}
+{'q': 'When did and how did Aung San pass away ?', 'article': 226, 'a': 'July 1947, political rivals assassinated Aung San'}
+{'q': 'What animals where domesticated in Burma for industry use ?', 'article': 226, 'a': 'elephants, which are also tamed or bred in captivity for use as work animals'}
+{'q': 'What did parents do when the wages were finally raised?', 'article': 273, 'a': 'send their children to school instead of work'}
+{'q': 'What happens when companies outsource?', 'article': 179, 'a': 'somewhat reshapes the industry ecosystem with biotechnology companies'}
+{'q': 'What is expected when the relationships are made public?', 'article': 179, 'a': 'relationship between doctors and Pharmaceutical industry will become fully transparent'}
+{'q': 'What happens when a childs food is restricted?', 'article': 347, 'a': 'children whose food is restricted have diarrhea of longer duration and recover intestinal function more slowly'}
+{'q': "What is the WHO's recipe for ORS?", 'article': 347, 'a': 'one liter water with one teaspoon salt (3 grams) and two tablespoons sugar (18 grams) added'}
+{'q': 'What does WHO recommend to do?', 'article': 347, 'a': 'children with diarrhea continue to eat as sufficient nutrients are usually still absorbed to support continued growth and weight gain'}
+{'q': 'What does WHO recommend?', 'article': 347, 'a': 'a child with diarrhea continue to be fed'}
+{'q': 'What group did the crusaders who attacked Valencia belong to?', 'article': 160, 'a': 'Order of Calatrava'}
+{'q': "What where the limitations of Greg's analyses?", 'article': 281, 'a': 'English Renaissance drama'}
+Traceback (most recent call last):
+  File "G:/Source/6320_Project/main.py", line 251, in <module>
+    test()
+  File "G:/Source/6320_Project/main.py", line 236, in test
+    quest_types(all_questions)
+  File "G:/Source/6320_Project/main.py", line 216, in quest_types
+    return
+KeyboardInterrupt
+
+Process finished with exit code -1073741510 (0xC000013A: interrupted by Ctrl+C)
