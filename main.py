@@ -7,6 +7,7 @@ import time
 import pprint
 import pysolr
 import spacy
+from collections import Counter
 from nltk.stem import WordNetLemmatizer
 from pathlib import Path
 from answerer import \
@@ -193,6 +194,28 @@ def oracle(q_a):
     return q_a
 
 
+def quest_types(q_as):
+    quest_words = ["who", "what", "where", "when", "why", "how"]
+    quest_words_ct = {}
+    for word in quest_words:
+        quest_words_ct[word] = 0
+    first_quest_words_ct = Counter()
+    # quest_words_ct = [0 for ]
+    for q_a in q_as:
+        quest_words_in_this_question = 0
+        words_in_this_quest = nltk.word_tokenize(q_a['q'].lower())
+        first_quest_words_ct.update({q_a['q'].split()[0]:1})
+        for word in quest_words:
+            if word in words_in_this_quest:
+                quest_words_ct[word] += 1
+                quest_words_in_this_question += 1
+        if quest_words_in_this_question > 1:
+            print(q_a)
+        if 'how' in words_in_this_quest:
+            a = 4
+    return
+
+
 def test():
     response = connect_solr()
     data_loaded = True  # TODO Write something to determine if articles are loaded
@@ -209,6 +232,8 @@ def test():
     q_a = import_q_a('data.txt')
     all_questions = all_q_a(q_a)
     # oracle(all_questions)
+
+    quest_types(all_questions)
 
     if test_only:
         test_questions = test_q_a(all_questions, num_q=10, seed=0)

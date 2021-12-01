@@ -41,6 +41,9 @@ def get_keywords(question):
     rake = Rake()
     rake.extract_keywords_from_text(question)
     keys_extracted = rake.get_ranked_phrases()
+    # Strip out ' and " so that we don't mess up solr:
+    keys_extracted = [s.translate({ord(c): None for c in '\'\"?'}) for s in keys_extracted]
+    keys_extracted = [s.strip() for s in keys_extracted]
     return keys_extracted
 
 
@@ -78,8 +81,6 @@ class KeywordAnswerer(Answerer):
         keywords = self.keyword_method(question)
         # The following line is needed to remove quotation marks from the search string
         # from https://stackoverflow.com/a/3939381
-        keywords = [s.translate({ord(c): None for c in '\'\"?'}) for s in keywords]
-        keywords = [s.strip() for s in keywords]
         prefix = 'contents:"'
         postfix = '"'
         infix = '" OR contents:"'
@@ -118,12 +119,12 @@ class SimpleNEAnswerer(Answerer):
     def __init__(self, solr):
         super().__init__(solr)
 
+    keyword_method = staticmethod(get_single_keywords)
+
     def this_method(self, question):
-        keywords = get_keywords(question)
+        keywords = self.keyword_method(question)
         # The following line is needed to remove quotation marks from the search string
         # from https://stackoverflow.com/a/3939381
-        keywords = [s.translate({ord(c): None for c in '\'\"?'}) for s in keywords]
-        keywords = [s.strip() for s in keywords]
         prefix = 'contents:"'
         postfix = '"'
         infix = '" OR contents:"'
