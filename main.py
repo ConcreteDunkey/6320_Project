@@ -18,7 +18,7 @@ from answerer import \
     SingleKeywordWithBlacklistAnswerer, \
     SimpleNEAnswerer
 
-NER = spacy.load("en_core_web_sm")
+NLP = spacy.load("en_core_web_sm")
 SOLR_CORE = 'solr_core'
 solr_core = pysolr.Solr('dummy')
 
@@ -29,7 +29,7 @@ class JimTimer:
 
     def lap(self):
         new = time.perf_counter()
-        lap_time = new-self.prev
+        lap_time = new - self.prev
         self.prev = new
         return f"time:{lap_time:.04f}"
 
@@ -82,23 +82,23 @@ def load_solr():
         solr_core.add([{
             'id': article + "_0",
             'contents': articles_content[article],
-            'type':'art',
+            'type': 'art',
             'tokens': tokens,
             'tagged_text': tagged_text,
             'lemmatized_text': lemmatized_text,
-            'named_entity' : ner_text
+            'named_entity': ner_text
         }])
         num_docs += 1
         for i, sentence in enumerate(sentences):
             _, tokens, tagged_text, lemmatized_text, ner_text = art_pipeline(sentence)
             solr_core.add([{
-                'id': article + "_" + str(i+1),
+                'id': article + "_" + str(i + 1),
                 'contents': sentence,
                 'type': 'sentence',
                 'tokens': tokens,
                 'tagged_text': tagged_text,
                 'lemmatized_text': lemmatized_text,
-                'named_entity' : ner_text
+                'named_entity': ner_text
             }])
             num_docs += 1
         print(f"Added article {article} after {Timer.lap()}")
@@ -153,11 +153,30 @@ def get_lemmas(tagged_text):
 
 
 def get_named_entities(article):
-    named_entities = NER(article)
+    spacied = NLP(article)
+    for sentence in spacied.sents:
+        parse_tree = lazy_tree(sentence.root)
+        # for w in a:
+        #     b = w
     ner_list = []
-    for word in named_entities.ents:
+    for word in spacied.ents:
         ner_list.append((word.text, word.label_))
     return ner_list
+
+
+def lazy_tree(root):
+    res = lazy_tree_rec(root)
+    return res
+
+
+def lazy_tree_rec(node):
+    res = {'token': str(node.orth_),
+           'pos': str(node.tag_),
+           'dep': str(node.dep_)}  # Dependency
+    children = [x for x in node.children]
+    if children:
+        res['children'] = [lazy_tree_rec(x) for x in children]
+    return res
 
 
 def get_all_nyms(lemmatized_text):
@@ -284,7 +303,7 @@ def quest_types(q_as):
     for q_a in q_as:
         quest_words_in_this_question = 0
         words_in_this_quest = nltk.word_tokenize(q_a['q'].lower())
-        first_quest_words_ct.update({q_a['q'].split()[0]:1})
+        first_quest_words_ct.update({q_a['q'].split()[0]: 1})
         for word in quest_words:
             if word in words_in_this_quest:
                 quest_words_ct[word] += 1
@@ -297,7 +316,7 @@ def quest_types(q_as):
 
 
 def test():
-    all_pipeline("eat")
+    all_pipeline("All the of his opponents' kids wishes he was their dad.")
     response = connect_solr()
     data_loaded = False  # TODO Write something to determine if articles are loaded
     # test_only = False
