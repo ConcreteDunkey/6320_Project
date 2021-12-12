@@ -1,4 +1,5 @@
-from nlp_tools import load_articles, all_pipeline
+from nlp_tools import all_pipeline
+from nlp_solr import load_articles
 import json
 import pathlib
 
@@ -15,7 +16,6 @@ def write_full_pipeline_result(text, file):
         res['nyms'],\
         res['parse_trees'],\
         res['named_entities'] = full_res
-    # parsed = json.loads(res)
     with open(file, 'w', encoding='utf-8') as this_file:
         json_so_far.append(res)
         json.dump(json_so_far, this_file, indent=4)
