@@ -9,6 +9,7 @@ import pysolr
 import spacy
 from collections import Counter
 from nltk.stem import WordNetLemmatizer
+from nltk.corpus import wordnet as wn
 from pathlib import Path
 from answerer import \
     BadAnswerer, \
@@ -105,9 +106,30 @@ def load_solr():
 
 
 def art_pipeline(article):
+    sentences = get_sentences(article)
+    tokens = get_tokens(article)
+    tagged_text = get_tagged_text(tokens)
+    lemmatized_text = get_lemmas(tagged_text)
+    named_entities = get_named_entities(article)
+    return sentences, tokens, tagged_text, lemmatized_text, named_entities
+
+
+def get_sentences(article):
     sentences = nltk.sent_tokenize(article)
+    return sentences
+
+
+def get_tokens(article):
     tokens = nltk.word_tokenize(article)
+    return tokens
+
+
+def get_tagged_text(tokens):
     tagged_text = nltk.pos_tag(tokens)
+    return tagged_text
+
+
+def get_lemmas(tagged_text):
     word_net_lemmatizer = WordNetLemmatizer()
     lemmatized_text = []
     for w in tagged_text:
@@ -116,12 +138,15 @@ def art_pipeline(article):
             lemmatized_text.append(word_net_lemmatizer.lemmatize(w[0], get_wn_pos(w[1])))
         else:
             lemmatized_text.append(w[0])
+    return lemmatized_text
+
+
+def get_named_entities(article):
     named_entities = NER(article)
     ner_list = []
     for word in named_entities.ents:
         ner_list.append((word.text, word.label_))
-    print(ner_list)
-    return sentences, tokens, tagged_text, lemmatized_text, ner_list
+    return ner_list
 
 
 def import_q_a(q_a_file):
@@ -217,17 +242,44 @@ def quest_types(q_as):
     return
 
 
+def wn_test():
+    dogs = wn.synsets('dog')
+    hypernyms = []
+    hyponyms = []
+    meronyms = []
+    holonyms = []
+    for dog in dogs:
+        if hasattr(dog, 'hypernyms'):
+            hypernyms.extend(dog.hypernyms())
+        if hasattr(dog, 'hyponyms'):
+            hyponyms.extend(dog.hyponyms())
+        if hasattr(dog, 'meronyms'):
+            meronyms.extend(dog.meronyms())
+        if hasattr(dog, 'holonyms'):
+            holonyms.extend(dog.holonyms())
+    d=6
+    # print(wn.synset('dog.n.01').definition())
+    # # a = wn.synset('dog.n.01').lemmas()
+    # # b = [str(lemma.name()) for lemma in wn.synset('dog.n.01').lemmas()]
+    # # c = wn.lemma('dog.n.01.dog').synset()
+    # for dog2 in dog
+    # dog2 = wn.synset('dog.n.01')
+    # d = dog2.hypernyms()
+    # print(d)
+
+
 def test():
+    # wn_test()
     response = connect_solr()
-    data_loaded = True  # TODO Write something to determine if articles are loaded
+    data_loaded = False  # TODO Write something to determine if articles are loaded
     # test_only = False
     test_only = True
     test_num_q = 100
     test_seed = 0
     # method = BadAnswerer
     # method = KeywordAnswerer
-    method = SingleKeywordAnswerer
-    # method = SingleKeywordWithBlacklistAnswerer
+    # method = SingleKeywordAnswerer
+    method = SingleKeywordWithBlacklistAnswerer
     # method = SimpleNEAnswerer
 
     if not data_loaded:
