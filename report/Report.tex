@@ -1,0 +1,144 @@
+%!TEX TS-program = pdflatex
+%!TEX encoding = UTF-8 Unicode
+
+% Template borrowed from Jeff Erickson via Kyle Fox
+
+\documentclass[11pt]{article}
+\usepackage{jeffe,handout,graphicx}
+\usepackage[utf8]{inputenc}		% Allow some non-ASCII Unicode in source
+\usepackage{xcolor}
+\usepackage{mdframed}
+\usepackage{arydshln}
+\usepackage[normalem]{ulem}
+\usepackage{bigdelim}
+\usepackage{listings}
+\usepackage{tabularray}
+\usepackage{endnotes}
+\usepackage{soul}
+\newcommand{\hlc}[2][yellow]{{%
+    \colorlet{foo}{#1}%
+    \sethlcolor{foo}\hl{#2}}%
+}
+
+
+\let\footnote=\endnote
+\lstset{language=R,
+    frame=single,
+    numbers=left,
+    numberstyle={\tiny \color{black}},
+    numbersep=9pt}
+
+\definecolor{codebackcolor}{rgb}{0.9, 0.9, 0.75}
+\definecolor{codenumcolor}{rgb}{0.5, 0.5, 0.5}
+\definecolor{codecommentcolor}{rgb}{0.75, 0.25, 0.1}
+\definecolor{codekeywordcolor}{rgb}{0.25, 0.00, 0.50}
+\definecolor{codestringcolor}{rgb}{0.125, 0.00, 0.50}
+
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{codebackcolor},   
+    commentstyle=\color{codecommentcolor},
+    keywordstyle=\color{codekeywordcolor},
+    numberstyle=\tiny\color{codenumcolor},
+    stringstyle=\color{codestringcolor},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+	        
+	\newcommand{\hlta}[1]{\colorbox{yellow!35}{\(\displaystyle#1\)}}
+	\newcommand{\hltb}[1]{\colorbox{red!20}{\(\displaystyle#1\)}}
+	\newcommand{\hltc}[1]{\colorbox{blue!20}{\(\displaystyle#1\)}}
+	\newcommand{\hltd}[1]{\colorbox{green!30}{\(\displaystyle#1\)}}
+
+\lstset{style=mystyle}
+% from https://tex.stackexchange.com/questions/169679/vdots-are-taller-than-the-rest-of-text
+\makeatletter
+\DeclareRobustCommand{\rvdots}{%
+  \vbox{
+    \baselineskip3\p@\lineskiplimit\z@
+    \kern-\p@
+    \hbox{.}\hbox{.}\hbox{.}
+  }}
+\makeatother
+
+% =========================================================
+%   Define common stuff for solution headers
+% =========================================================
+\Class{CS 6320}
+\Semester{Fall 2021}
+\Authors{2}
+\AuthorOne{Ziyad Amir Dhuka}{zxd200000}
+\AuthorTwo{James Amato}{jca120030}
+%\Section{}
+\begin{document}
+\HomeworkHeader{}{}% homework number, problem number
+
+\begin{center}\huge{Natural Language, Processed Unnaturally}\end{center}
+
+\section{Problem Description}
+
+This is the first section.
+
+adsfasdf
+
+\section{Proposed Solution}
+
+This is the second section
+
+asdfasdgf
+
+\section{Full Implementation Details}
+
+adsf
+
+\subsection{Programming Tools}
+
+asdf
+
+\subsection{Architectural Diagram}
+
+asdf
+
+\subsection{Results and Error Analysis}
+
+asdf
+
+\subsection{Problems: Encountered and Resolved}
+
+
+Findings:
+
+Initial method simply returned the first sentence found in any article. By default, this happened to be the first sentence in article 109, ``Bird migration is the regular seasonal movement, often north and south along a flyway, between breeding and wintering grounds.'' We counted number of times the article was correctly identified, and number of times the provided answer appeared in the sentence. Interestingly, because the terms ``north'' and ``south'' are answers to two unrelated questions, this method counted those as correct. Another question asked something similar, ``What is the most common directionof migration in autumn?''; the provided answer ``south'' appears in the provided answer. The last question was looking for this precise sentence; it is good to know that this method will correctly detect this correct answer. In the set of questions, 89 are for this article, so those are correct by default. Of 2505, got 
+
+BadAnswerer: Of 2505 total questions, the correct article was found 89 times and the correct sentence was found 4 times.
+
+Next method simply used RAKE keyword search. Of 2505 questions, got 1453 correct articles and 769 correct sentences.
+
+KeywordAnswerer: Of 2505 total questions, the correct article was found 1453 times and the correct sentence was found 769 times.
+
+\subsection{Pending Issues}
+
+asdf
+
+\subsection{Potential Improvements}
+
+Jim's time management, for real
+
+%\begin{center}
+%\vspace{2in}
+%We are 
+%
+%\vspace{1in}
+%\Huge Natural Language, Processed Unnaturally
+%\end{center}
+\end{document}
