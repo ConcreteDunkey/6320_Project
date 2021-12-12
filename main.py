@@ -110,8 +110,7 @@ def art_pipeline(article):
     tokens = get_tokens(article)
     tagged_text = get_tagged_text(tokens)
     lemmatized_text = get_lemmas(tagged_text)
-    # nyms = get_all_nyms(lemmatized_text)
-    named_entities = get_named_entities(article)
+    named_entities, _ = get_named_entities_and_parse_trees(article)
     return sentences, tokens, tagged_text, lemmatized_text, named_entities
 
 
@@ -121,8 +120,8 @@ def all_pipeline(text):
     tagged_text = get_tagged_text(tokens)
     lemmatized_text = get_lemmas(tagged_text)
     nyms = get_all_nyms(lemmatized_text)
-    named_entities = get_named_entities(text)
-    return sentences, tokens, tagged_text, lemmatized_text, named_entities
+    named_entities, parse_trees = get_named_entities_and_parse_trees(text)
+    return sentences, tokens, tagged_text, lemmatized_text, nyms, parse_trees, named_entities
 
 
 def get_sentences(article):
@@ -152,16 +151,16 @@ def get_lemmas(tagged_text):
     return lemmatized_text
 
 
-def get_named_entities(article):
-    spacied = NLP(article)
+# Can be full article or single sentence
+def get_named_entities_and_parse_trees(text):
+    spacied = NLP(text)
+    parse_trees = []
     for sentence in spacied.sents:
-        parse_tree = lazy_tree(sentence.root)
-        # for w in a:
-        #     b = w
+        parse_trees.append(lazy_tree(sentence.root))
     ner_list = []
     for word in spacied.ents:
         ner_list.append((word.text, word.label_))
-    return ner_list
+    return ner_list, parse_trees
 
 
 def lazy_tree(root):
