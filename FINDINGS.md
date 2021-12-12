@@ -15,6 +15,7 @@ Next method - blacklisting just two words ("one", "type"), which seem to be part
 
 While preparing to add NE utiliation, explored how question words are used. There is a list of questions, below, with multiple question words in a single question. Need to use better system (POS tagging? syntatic analysis?)
 
+Some difficulty when trying to find meronyms and holonyms... because it's not quite as simple as that.
 
 
 *Troublesome questions (section to be cleaned):*

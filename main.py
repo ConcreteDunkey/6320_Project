@@ -110,7 +110,18 @@ def art_pipeline(article):
     tokens = get_tokens(article)
     tagged_text = get_tagged_text(tokens)
     lemmatized_text = get_lemmas(tagged_text)
+    # nyms = get_all_nyms(lemmatized_text)
     named_entities = get_named_entities(article)
+    return sentences, tokens, tagged_text, lemmatized_text, named_entities
+
+
+def all_pipeline(text):
+    sentences = get_sentences(text)
+    tokens = get_tokens(text)
+    tagged_text = get_tagged_text(tokens)
+    lemmatized_text = get_lemmas(tagged_text)
+    nyms = get_all_nyms(lemmatized_text)
+    named_entities = get_named_entities(text)
     return sentences, tokens, tagged_text, lemmatized_text, named_entities
 
 
@@ -130,7 +141,7 @@ def get_tagged_text(tokens):
 
 
 def get_lemmas(tagged_text):
-    word_net_lemmatizer = WordNetLemmatizer()
+    word_net_lemmatizer = WordNetLemmatizer()  # TODO: Make this a global, test if it runs faster
     lemmatized_text = []
     for w in tagged_text:
         a = get_wn_pos(w[1])
@@ -147,6 +158,49 @@ def get_named_entities(article):
     for word in named_entities.ents:
         ner_list.append((word.text, word.label_))
     return ner_list
+
+
+def get_all_nyms(lemmatized_text):
+    nym_types = ['hypernyms',
+                 'hyponyms',
+                 'part_meronyms',
+                 'substance_meronyms',
+                 'part_holonyms',
+                 'substance_holonyms',
+                 'entailments']
+    res = {}
+    for nym_type in nym_types:
+        res[nym_type] = []
+    for lemma in lemmatized_text:
+        nyms = get_nyms(lemma, nym_types)
+        for nym_type in nym_types:
+            res[nym_type].extend(nyms[nym_type])
+    return res
+
+
+def get_nyms(lemma, nym_types):
+    senses = wn.synsets(lemma)
+    res = {}
+    for nym_type in nym_types:
+        res[nym_type] = []
+    for sense in senses:
+        for nym_type in nym_types:
+            res[nym_type].extend(get_nym(sense, nym_type))
+            a = 0
+    return res
+
+
+def get_nym(sense, nym_type):
+    # senses = wn.synsets(lemma)
+    res = []
+    # for sense in senses:
+    if hasattr(sense, nym_type):
+        method_name = getattr(sense, nym_type)
+        nyms = method_name()
+        for synset in nyms:
+            for word in synset.lemmas():
+                res.append(word.name())
+    return res
 
 
 def import_q_a(q_a_file):
@@ -242,34 +296,8 @@ def quest_types(q_as):
     return
 
 
-def wn_test():
-    dogs = wn.synsets('dog')
-    hypernyms = []
-    hyponyms = []
-    meronyms = []
-    holonyms = []
-    for dog in dogs:
-        if hasattr(dog, 'hypernyms'):
-            hypernyms.extend(dog.hypernyms())
-        if hasattr(dog, 'hyponyms'):
-            hyponyms.extend(dog.hyponyms())
-        if hasattr(dog, 'meronyms'):
-            meronyms.extend(dog.meronyms())
-        if hasattr(dog, 'holonyms'):
-            holonyms.extend(dog.holonyms())
-    d=6
-    # print(wn.synset('dog.n.01').definition())
-    # # a = wn.synset('dog.n.01').lemmas()
-    # # b = [str(lemma.name()) for lemma in wn.synset('dog.n.01').lemmas()]
-    # # c = wn.lemma('dog.n.01.dog').synset()
-    # for dog2 in dog
-    # dog2 = wn.synset('dog.n.01')
-    # d = dog2.hypernyms()
-    # print(d)
-
-
 def test():
-    # wn_test()
+    all_pipeline("eat")
     response = connect_solr()
     data_loaded = False  # TODO Write something to determine if articles are loaded
     # test_only = False
