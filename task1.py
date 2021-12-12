@@ -1,4 +1,4 @@
-from main import load_articles, all_pipeline
+from nlp_tools import load_articles, all_pipeline
 import json
 import pathlib
 
