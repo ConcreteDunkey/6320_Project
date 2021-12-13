@@ -59,7 +59,7 @@ def count_correctly_answered_questions(questions, solr_core, method, detailed_re
 
 def test():
     solr_core = connect_solr()
-    test_only = True
+    test_only = False
     test_num_q = 100
     test_seed = 0
     # method = BadAnswerer
@@ -69,6 +69,7 @@ def test():
     # method = SimpleNEAnswerer
 
     q_a = import_q_a('data.txt')
+    # q_a = import_q_a('new_data.txt')
     all_questions = all_q_a(q_a)
 
     if test_only:
@@ -83,7 +84,7 @@ def test():
         correct_art, correct_sent = count_correctly_answered_questions(question_set,
                                                                        solr_core,
                                                                        method,
-                                                                       detailed_results=False)
+                                                                       detailed_results=True)
     print(f"Of {len(question_set)} total questions, "
           f"the correct article was found {correct_art} times "
           f"and the correct sentence was found {correct_sent} times.")

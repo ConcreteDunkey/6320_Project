@@ -4,6 +4,9 @@ import json
 import pathlib
 
 
+OUTPUT_DIR = 'output/'
+
+
 def write_full_pipeline_result(text, file):
     with open(file, 'r', encoding='utf-8') as this_file:
         json_so_far = json.load(this_file)
@@ -22,7 +25,7 @@ def write_full_pipeline_result(text, file):
 
 
 def load_questions():
-    with open('question_list.txt') as q_file:
+    with open('old_question_list.txt') as q_file:
         res = q_file.read().splitlines()
     res = [i.replace('"', '') for i in res]
     return res
@@ -42,7 +45,7 @@ def prep_output_file(out_dir, out_file_name):
 
 
 def task1():
-    out_dir = prep_output_dir('output/')
+    out_dir = prep_output_dir(OUTPUT_DIR)
 
     questions = load_questions()
     q_file = prep_output_file(out_dir, "NLP_pipeline_questions.json")
