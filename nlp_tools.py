@@ -139,6 +139,9 @@ def get_nym(sense, nym_type):
         for synset in nyms:
             for word in synset.lemmas():
                 res.append(word.name())
+    elif nym_type =='synonyms':
+        for synset in sense.lemmas():
+            res.append(synset.name().replace("_"," "))
     return res
 
 
