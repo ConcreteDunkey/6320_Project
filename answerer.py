@@ -8,6 +8,10 @@ class Answerer:
         if type(self) is Answerer:
             raise Exception('This is an abstract class and should not be instantiated.')
         self.solr = solr
+        self.args = {
+            'hl': 'true',
+            'rows': 30,
+            'fl': '*,score'}
         # print('From __init__ in base Answerer class')
 
     def answer(self, question):
@@ -25,6 +29,12 @@ class Answerer:
         raise Exception('This is an abstract class and should not be instantiated.')
         return 2
 
+    def search(self, question, args):
+        return self.solr.search(question, **args)
+
+    def def_search(self, question):
+        return self.solr.search(question, **self.args)
+
 
 class BadAnswerer(Answerer):
     def __init__(self, solr):
@@ -34,7 +44,8 @@ class BadAnswerer(Answerer):
     def this_method(self, question):
         # This is a deliberately BAD search; pulling the first sentence it finds
         query = 'type:"sentence"'
-        return self.solr.search(query)
+        # return self.solr.search(query)
+        return self.def_search(query)
 
 
 def get_keywords(question):
@@ -87,11 +98,7 @@ class KeywordAnswerer(Answerer):
         keyword_string = prefix + infix.join(keywords) + postfix
         query = keyword_string
         query += ' type:"sentence"'
-        results = self.solr.search(query, **{
-                'hl': 'true',
-                'rows': 30,
-                'fl': '*,score'
-            })
+        results = self.def_search(query)
         return results
 
 
@@ -135,5 +142,5 @@ class SimpleNEAnswerer(Answerer):
         keyword_string = prefix + infix.join(keywords) + postfix
         query = keyword_string
         query += ' type:"sentence" '
-        results = self.solr.search(query)
+        results = self.def_search(query)
         return results
