@@ -6,7 +6,9 @@ from answerer import \
     KeywordAnswerer, \
     SingleKeywordAnswerer, \
     SingleKeywordWithBlacklistAnswerer, \
-    SimpleNEAnswerer
+    SimpleNEAnswerer,\
+    ArticleEnhancedAnswerer
+
 from nlp_solr import connect_solr
 
 
@@ -63,12 +65,12 @@ def test():
     # test_only = False
     test_num_q = 10
     test_seed = 0
-    method = BadAnswerer
+    # method = BadAnswerer
     # method = KeywordAnswerer
     # method = SingleKeywordAnswerer
     # method = SingleKeywordWithBlacklistAnswerer
     # method = SimpleNEAnswerer
-
+    method = ArticleEnhancedAnswerer
     q_a = import_q_a('data.txt')
     # q_a = import_q_a('new_data.txt')
     all_questions = all_q_a(q_a)
