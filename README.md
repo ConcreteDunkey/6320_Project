@@ -22,3 +22,8 @@ To start running Solr:
 * bin\solr.cmd start
 * open servers/solr/jim_core
 * delete everything
+
+To run with provided questions:
+* Name file "new_question_list.txt" in main working directory
+* Run task3
+* To use with task1, name file "old_question_list.txt" in main working directory
