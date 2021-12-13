@@ -77,7 +77,10 @@ def get_named_entities_and_parse_trees(text):
         parse_trees.append(lazy_tree(sentence.root))
     ner_list = []
     for word in spacied.ents:
-        ner_list.append((word.text, word.label_))
+        # Workaround of old method
+        ner_list.append(word.text +'_'+ word.label_)
+        # Old method not working
+        # ner_list.append((word.text, word.label_))
     return ner_list, parse_trees
 
 
