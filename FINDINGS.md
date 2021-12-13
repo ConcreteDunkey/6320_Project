@@ -100,3 +100,5 @@ SimpleNE does no better than SimpleKeyword on 100 questions (correct article 90 
 Of 2505 total questions, the correct article was found 2207 times and the correct sentence was found 1380 times.
 compared to:
 Of 2505 total questions, the correct article was found 2206 times and the correct sentence was found 1380 times. (55%)
+
+When trying to make boxplots based on deltas, we found that the basic keyword answerer gave 15 questions only one result. that could be interesting, right? 

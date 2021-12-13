@@ -25,14 +25,16 @@ class Answerer:
     def answer(self, question):
         results = self.this_method(question)
         if len(results) == 0:
-            raise Exception("No results returned!")  # TODO FIXME
-        art = results.docs[0]['id']
-        # If we return the full article, the answer will be found within it.
-        if art.split('_')[1] == '0':
+            art = 0
             sentence = ''
         else:
-            sentence = results.docs[0]['contents'][0]
-        art = art.split('_')[0]
+            art = results.docs[0]['id']
+            # If we return the full article, the answer will be found within it.
+            if art.split('_')[1] == '0':
+                sentence = ''
+            else:
+                sentence = results.docs[0]['contents'][0]
+            art = art.split('_')[0]
         return art, sentence
 
     def this_method(self, question):
@@ -102,12 +104,12 @@ class KeywordAnswerer(Answerer):
         keywords = self.keyword_method(question)
         # The following line is needed to remove quotation marks from the search string
         # from https://stackoverflow.com/a/3939381
-        prefix = 'contents:"'
+        prefix = '(contents:"'
         postfix = '"'
         infix = '" OR contents:"'
         keyword_string = prefix + infix.join(keywords) + postfix
         query = keyword_string
-        query += ' type:"sentence"'
+        query += ') AND type:"sentence"'
         results = self.def_search(query)
         return results
 
@@ -270,13 +272,24 @@ class ScoreCheckAnswerer(Answerer):
     def answer(self, question):
         results, scores = self.this_method(question)
         if len(results) == 0:
-            raise Exception("No results returned!")  # TODO FIXME
-        art = results.docs[0]['id']
-        if art.split('_')[1] == '0':
+            art = 0
             sentence = ''
+            scores = [0, 0]
+        elif len(results) == 1:
+            art = results.docs[0]['id']
+            if art.split('_')[1] == '0':
+                sentence = ''
+            else:
+                sentence = results.docs[0]['contents'][0]
+            art = art.split('_')[0]
+            scores = [scores[0], 0]
         else:
-            sentence = results.docs[0]['contents'][0]
-        art = art.split('_')[0]
+            art = results.docs[0]['id']
+            if art.split('_')[1] == '0':
+                sentence = ''
+            else:
+                sentence = results.docs[0]['contents'][0]
+            art = art.split('_')[0]
         return art, sentence, scores
 
 
@@ -311,9 +324,6 @@ class ArticleEnhancedAnswerer(Answerer):
         #     ner_list.append(word.text +'_'+ word.label_)
 
         # keywords = keywords + synonyms
-
-        # The following line is needed to remove quotation marks from the search string
-        # from https://stackoverflow.com/a/3939381
 
         prefix = '(contents:"'
         postfix = '"'
