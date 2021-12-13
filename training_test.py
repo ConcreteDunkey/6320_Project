@@ -6,7 +6,8 @@ from answerer import \
     KeywordAnswerer, \
     SingleKeywordAnswerer, \
     SingleKeywordWithBlacklistAnswerer, \
-    SimpleNEAnswerer
+    SimpleNEAnswerer, \
+    ArtRefineAnswerer
 from nlp_solr import connect_solr
 
 
@@ -43,6 +44,7 @@ def count_correctly_answered_questions(questions, solr_core, method, detailed_re
     a = method(solr_core)
     correct_art = 0
     correct_sent = 0
+    # questions = questions[9:]  # Easy way to skip ahead to a particular questions
     for question in questions:
         res_art, res_sent = a.answer(question['q'])
         if question['article'] == int(res_art):
@@ -59,15 +61,16 @@ def count_correctly_answered_questions(questions, solr_core, method, detailed_re
 
 def test():
     solr_core = connect_solr()
-    test_only = True
-    # test_only = False
-    test_num_q = 10
+    # test_only = True
+    test_only = False
+    test_num_q = 100
     test_seed = 0
-    method = BadAnswerer
+    # method = BadAnswerer
     # method = KeywordAnswerer
     # method = SingleKeywordAnswerer
     # method = SingleKeywordWithBlacklistAnswerer
-    # method = SimpleNEAnswerer
+    method = SimpleNEAnswerer
+    # method = ArtRefineAnswerer
 
     q_a = import_q_a('data.txt')
     # q_a = import_q_a('new_data.txt')
@@ -85,7 +88,7 @@ def test():
         correct_art, correct_sent = count_correctly_answered_questions(question_set,
                                                                        solr_core,
                                                                        method,
-                                                                       detailed_results=True)
+                                                                       detailed_results=False)
     print(f"Of {len(question_set)} total questions, "
           f"the correct article was found {correct_art} times "
           f"and the correct sentence was found {correct_sent} times.")

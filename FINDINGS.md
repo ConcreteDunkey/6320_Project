@@ -59,3 +59,44 @@ Traceback (most recent call last):
 KeyboardInterrupt
 
 Process finished with exit code -1073741510 (0xC000013A: interrupted by Ctrl+C)
+
+
+note that the questions with two wh words, "when" occurs with others most frequently in the non-driving position; "who" the least frequently
+
+
+Naive checking of named entities in the answer gives poor results. the following questions have the correct answer in the top result, but the associated NE would remove them from consideration:
+'Of what was Magadha one of sixteen?'
+['one_CARDINAL', 'sixteen_CARDINAL', 'India_GPE']
+
+'Who seized the US Embassy in Iran in 1979?'
+['November 4, 1979_DATE', 'the United States Embassy_GPE', '52_CARDINAL', 'the United States_GPE', 'Mohammad Reza Pahlavi_PERSON', 'Iran_GPE']
+
+'What type of government did Espartero have?'
+['Maria Cristina_PERSON', 'Espartero_PERSON', 'Spain_GPE', 'two years_DATE', '18th_ORDINAL', '16 September 1840 to_DATE', 'May 1841_DATE']
+
+'On what did Skousen analyze ink and pencil remnants?'
+['the Community of Christ—RLDS Church_ORG', 'Independence_GPE', 'Missouri_GPE']
+
+'Who ordered Valencia punished for supporting Charles?'
+['25 April 1707_DATE', 'English_NORP', 'Valencia_PERSON', 'Philip_PERSON', 'Valencia_PERSON', 'Charles of_PERSON', 'Austria_GPE']
+
+'What is the natural gas condensate used to dilute bitumen?'
+(no named entities)
+
+'When did the Ming hold the divide and rule policy?'
+['Luciano Petech_PERSON', 'Sato Hisashi_PERSON', 'Tibet_GPE', 'Sakya_ORG']
+
+'What does an inker do?'
+['American_NORP']
+
+'What was a normal play time per side for LPs?'
+['up to 30 minutes_TIME', 'about 22 minutes_TIME', 'about forty-five minutes_CARDINAL']
+
+'What is the last step in the stemmatic method?'
+(no named entities)
+
+
+SimpleNE does no better than SimpleKeyword on 100 questions (correct article 90 times; correct sentence 63)
+Of 2505 total questions, the correct article was found 2207 times and the correct sentence was found 1380 times.
+compared to:
+Of 2505 total questions, the correct article was found 2206 times and the correct sentence was found 1380 times. (55%)

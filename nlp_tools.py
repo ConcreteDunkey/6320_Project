@@ -3,6 +3,8 @@ import spacy
 from collections import Counter
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import wordnet as wn
+# import training_test as tt
+from answerer import determine_question_type
 
 
 NLP = spacy.load("en_core_web_sm")
@@ -163,7 +165,13 @@ def quest_types(q_as):
 
 
 def test():
-    pass
+    test_sentence = "I am curious about your analysis of different questions."
+    q_a = tt.import_q_a('data.txt')
+    # q_a = import_q_a('new_data.txt')
+    all_questions = tt.all_q_a(q_a)
+    for q_a in all_questions:
+        question = q_a['q']
+        determine_question_type(question)
 
 
 if __name__ == '__main__':
