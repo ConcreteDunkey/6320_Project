@@ -72,6 +72,7 @@ def test():
     # method = SingleKeywordWithBlacklistAnswerer
     # method = SimpleNEAnswerer
     method = ArticleEnhancedAnswerer
+
     q_a = import_q_a('data.txt')
     # q_a = import_q_a('new_data.txt')
     all_questions = all_q_a(q_a)
@@ -88,7 +89,7 @@ def test():
         correct_art, correct_sent = count_correctly_answered_questions(question_set,
                                                                        solr_core,
                                                                        method,
-                                                                       detailed_results=True)
+                                                                       detailed_results=False)
     print(f"Of {len(question_set)} total questions, "
           f"the correct article was found {correct_art} times "
           f"and the correct sentence was found {correct_sent} times.")

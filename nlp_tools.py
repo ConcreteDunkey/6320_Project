@@ -4,7 +4,7 @@ from collections import Counter
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import wordnet as wn
 # import training_test as tt
-from answerer import determine_question_type
+# from answerer import determine_question_type
 
 
 NLP = spacy.load("en_core_web_sm")

@@ -1,6 +1,5 @@
 #  Basic Answerer classes
 import copy
-
 import pysolr
 from rake_nltk import Rake
 from nlp_tools import get_lemmas, get_nyms, get_nym, get_tokens, get_tagged_text
@@ -305,13 +304,13 @@ class ArticleEnhancedAnswerer(Answerer):
         lemmatized_text = get_lemmas(tagged_text)
         synonyms = self.get_all_nyms(lemmatized_text)['synonyms']
         synonyms = list(set(synonyms))
-        print(synonyms)
+        # print(synonyms)
         spacied = NLP(question)
         ner_list = []
         for word in spacied.ents:
             ner_list.append(word.text +'_'+ word.label_)
 
-        # keywords = keywords + synonyms
+        keywords = keywords + synonyms
 
         # The following line is needed to remove quotation marks from the search string
         # from https://stackoverflow.com/a/3939381
@@ -326,7 +325,6 @@ class ArticleEnhancedAnswerer(Answerer):
         infix_ner = '" OR named_entity:"'
         keyword_string_ner = prefix_ner + infix_ner.join(ner_list) + postfix_ner
 
-
         query = '(' + keyword_string + ')' + ' OR ' + keyword_string_ner + ')'
         query += ') AND type:"art" '
 
@@ -335,6 +333,6 @@ class ArticleEnhancedAnswerer(Answerer):
         score = []
         for res in results:
             score.append(res['score'])
-        print(score)
+        # print(score)
 
         return results
