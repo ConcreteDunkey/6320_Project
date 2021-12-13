@@ -64,14 +64,14 @@ def test():
     solr_core = connect_solr()
     test_only = True
     # test_only = False
-    test_num_q = 10
+    test_num_q = 100
     test_seed = 0
     # method = BadAnswerer
     # method = KeywordAnswerer
-    # method = SingleKeywordAnswerer
+    method = SingleKeywordAnswerer
     # method = SingleKeywordWithBlacklistAnswerer
     # method = SimpleNEAnswerer
-    method = ArticleEnhancedAnswerer
+    # method = ArticleEnhancedAnswerer
 
     q_a = import_q_a('data.txt')
     # q_a = import_q_a('new_data.txt')
@@ -83,7 +83,7 @@ def test():
         correct_art, correct_sent = count_correctly_answered_questions(question_set,
                                                                        solr_core,
                                                                        method,
-                                                                       detailed_results=True)
+                                                                       detailed_results=False)
     else:
         question_set = all_questions
         correct_art, correct_sent = count_correctly_answered_questions(question_set,

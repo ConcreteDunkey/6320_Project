@@ -298,19 +298,19 @@ class ArticleEnhancedAnswerer(Answerer):
         return res
 
     def this_method(self, question):
-        # keywords = self.keyword_method(question)
-        keywords = get_tokens(question)
-        tagged_text = get_tagged_text(keywords)
-        lemmatized_text = get_lemmas(tagged_text)
-        synonyms = self.get_all_nyms(lemmatized_text)['synonyms']
-        synonyms = list(set(synonyms))
+        keywords = self.keyword_method(question)
+        # keywords = get_tokens(question)
+        # tagged_text = get_tagged_text(keywords)
+        # lemmatized_text = get_lemmas(tagged_text)
+        # synonyms = self.get_all_nyms(lemmatized_text)['synonyms']
+        # synonyms = list(set(synonyms))
         # print(synonyms)
-        spacied = NLP(question)
-        ner_list = []
-        for word in spacied.ents:
-            ner_list.append(word.text +'_'+ word.label_)
+        # spacied = NLP(question)
+        # ner_list = []
+        # for word in spacied.ents:
+        #     ner_list.append(word.text +'_'+ word.label_)
 
-        keywords = keywords + synonyms
+        # keywords = keywords + synonyms
 
         # The following line is needed to remove quotation marks from the search string
         # from https://stackoverflow.com/a/3939381
@@ -320,12 +320,13 @@ class ArticleEnhancedAnswerer(Answerer):
         infix = '" OR contents:"'
         keyword_string = prefix + infix.join(keywords) + postfix
 
-        prefix_ner = '(named_entity:"'
-        postfix_ner = '"'
-        infix_ner = '" OR named_entity:"'
-        keyword_string_ner = prefix_ner + infix_ner.join(ner_list) + postfix_ner
+        # prefix_ner = '(named_entity:"'
+        # postfix_ner = '"'
+        # infix_ner = '" OR named_entity:"'
+        # keyword_string_ner = prefix_ner + infix_ner.join(ner_list) + postfix_ner
 
-        query = '(' + keyword_string + ')' + ' OR ' + keyword_string_ner + ')'
+        query = keyword_string
+        # query = '(' + keyword_string + ')' + ' OR ' + keyword_string_ner + ')'
         query += ') AND type:"art" '
 
         results = self.def_search(query)
