@@ -151,6 +151,8 @@ While preparing to add NE utiliation, explored how question words are used. Ther
 
 Some difficulty when trying to find meronyms and holonyms... because it's not quite as simple as that. More hours than I'm proud to admit were spent debugging, when in fact the proper solution is that wordNet breaks meronyms and holonyms into substance and part types.
 
+Adding named entities to the search didn't seem to improve things. On investigation, it was clear that the named entity types we sought we not actually set as named entities in the sentences. Perhaps this is a failing of the way we implemented named entitty detection.
+
 \subsection{Pending Issues}
 
 We are trying to apply scipy statistics to the score results, but get ridiculous and plainly incorrect p-values and confidence intervals (overestimating precision).

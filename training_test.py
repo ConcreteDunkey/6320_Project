@@ -8,6 +8,7 @@ from answerer import \
     SingleKeywordWithBlacklistAnswerer, \
     SimpleNEAnswerer,\
     ArticleEnhancedAnswerer
+from answerer_iterative import IterativeAnswerer
 
 from nlp_solr import connect_solr
 
@@ -68,10 +69,11 @@ def test():
     test_seed = 0
     # method = BadAnswerer
     # method = KeywordAnswerer
-    method = SingleKeywordAnswerer
+    # method = SingleKeywordAnswerer
     # method = SingleKeywordWithBlacklistAnswerer
     # method = SimpleNEAnswerer
     # method = ArticleEnhancedAnswerer
+    method = IterativeAnswerer
 
     q_a = import_q_a('data.txt')
     # q_a = import_q_a('new_data.txt')

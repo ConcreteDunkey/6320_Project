@@ -3,6 +3,7 @@ import spacy
 from collections import Counter
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import wordnet as wn
+# import re
 # import training_test as tt
 # from answerer import determine_question_type
 
@@ -167,14 +168,58 @@ def quest_types(q_as):
     return
 
 
+def find_a_quotation(question, char, start):
+    quote = None
+    end_idx = None
+    # in case q_char is ' we need to ignore things like "tom's", so '_{char}' has _ space at start
+    start_idx = question.find(f' {char}', start)
+    if start_idx > -1:
+        # Possibly lazy, but the logic is we know that ' and " are not intermixed, so no space in following
+        end_idx = question.find(f'{char}', start_idx + 2)
+        if end_idx > -1:
+            quote = (question[start_idx + 2: end_idx])
+    return quote, end_idx
+
+
+def find_all_quotations_with_mark(question, q_char):
+    quotes = []
+    ct = question.count(q_char)
+    if ct > 0 and ct % 2 == 0:
+        start = 0
+        for _ in range(int(ct / 2)):
+            quote, end_idx = find_a_quotation(question, q_char, start)
+            if quote is not None:
+                quotes.append(quote)
+                start = end_idx
+    return quotes
+
+
+# # Retain just in case it's needed later
+# def find_all_quotations(q_as):
+#     for q_a in q_as:
+#         res = None
+#         question = q_a['q']
+#         quotes = find_all_quotations_with_mark(question, '\"')
+#         if len(quotes) > 0:
+#             res = quotes
+#         else:
+#             quotes = find_all_quotations_with_mark(question, "\'")
+#             if len(quotes) > 0:
+#                 res = quotes
+#         if res is not None:
+#             print(question)
+#             print(quotes)
+
+
 def test():
     test_sentence = "I am curious about your analysis of different questions."
-    q_a = tt.import_q_a('data.txt')
-    # q_a = import_q_a('new_data.txt')
-    all_questions = tt.all_q_a(q_a)
-    for q_a in all_questions:
-        question = q_a['q']
-        determine_question_type(question)
+    # q_a = tt.import_q_a('data.txt')
+    # # q_a = import_q_a('new_data.txt')
+    # all_questions = tt.all_q_a(q_a)
+    # find_all_quotations(all_questions)
+    # for q_a in all_questions:
+    #     question = q_a['q']
+    #     determine_question_type(question)
 
 
 if __name__ == '__main__':
