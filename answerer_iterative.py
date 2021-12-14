@@ -1,6 +1,8 @@
+import nltk
+
 from answerer import Answerer, get_single_keywords
 from nltk.corpus import stopwords
-from nlp_tools import find_all_quotations_with_mark, get_tokens
+from nlp_tools import find_all_quotations_with_mark, get_tokens, get_tagged_text
 
 
 stop_words = set(stopwords.words('english'))
@@ -29,6 +31,17 @@ def key_huer1(question):
     return keywords_found
 
 
+def key_huer2(question):
+    tokens = get_tokens(question)
+    tagged = get_tagged_text(tokens)
+    keywords_found = [w for w , pos in tagged if pos == 'NNP']
+    return keywords_found
+
+
+# def key_huer3(question):
+#
+
+
 def lasso_keywords(question, level):
     keywords = []
     if level > 0:
@@ -40,10 +53,12 @@ class IterativeAnswerer(Answerer):
     def __init__(self, solr):
         super().__init__(solr)
 
-    keyword_method = staticmethod(lasso_keywords)
+    # keyword_method = staticmethod(lasso_keywords)
+    keyword_method = staticmethod(key_huer2)
 
     def this_method(self, question):
-        keywords = self.keyword_method(question, 1)
+        # keywords = self.keyword_method(question, 1)
+        keywords = self.keyword_method(question)
         if len(keywords) > 0:
             print(question)
             print(keywords)
