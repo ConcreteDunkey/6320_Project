@@ -120,14 +120,21 @@ When reading sentence, the RAKE (Rapid Automatic Keyword Extraction) algorithm i
 
 \subsection{Results and Error Analysis}
 
-asdf
+As development proceeded we found the need to determine when correct articles are found. Our analysis simply counts instances of the correct answer in the target sentence. The first system we built was meant to deliberately get things wrong, and simply returned the first result in the whole solr database, when searching for type:'sentence'. By default, this happened to be the first sentence in article 109, ``Bird migration is the regular seasonal movement, often north and south along a flyway, between breeding and wintering grounds.'' We counted number of times the article was correctly identified, and number of times the provided answer appeared in the sentence. Interestingly, because the terms ``north'' and ``south'' are answers to two unrelated questions, this method counted those as correct. Another question asked something similar, ``What is the most common direction of migration in autumn?''; the provided answer ``south'' appears in the provided answer. So we see it is an imperfect method.
+
+Nevertheless, we proceed. We tried to make data-driven decisions. As such, when we found a reasonably good, albeit very simple answerer, we begain building tools for analysis. One such analysis looks at the solr score for a given result, and compares it when the answer is correct or incorrect, and when the article is determined correctly or incorrectly. We examined both the top score in those cases, and the deltas between scores. We did this analysis both on a small subset of questions (used for development) and the full set provided.
+
+    \includegraphics[trim={0 0 0 0},clip,scale=0.9]{fig/bt-all.pdf}
+    
+    \includegraphics[trim={0 0 0 0},clip,scale=0.9]{fig/bd-all.pdf}
 
 \subsection{Problems: Encountered and Resolved}
 
+Initially, Jim had difficulty reading the data files into python, though Ziyad did not. The solution is always setting encoding='utf-8' when reading and writing files.
 
-Findings:
+We built a BadAnswerer in hopes of getting the most improved award. This method simply returned the first sentence found in any article.  In the set of questions, 89 are for this article, so those are correct by default.
 
-Initial method simply returned the first sentence found in any article. By default, this happened to be the first sentence in article 109, ``Bird migration is the regular seasonal movement, often north and south along a flyway, between breeding and wintering grounds.'' We counted number of times the article was correctly identified, and number of times the provided answer appeared in the sentence. Interestingly, because the terms ``north'' and ``south'' are answers to two unrelated questions, this method counted those as correct. Another question asked something similar, ``What is the most common directionof migration in autumn?''; the provided answer ``south'' appears in the provided answer. The last question was looking for this precise sentence; it is good to know that this method will correctly detect this correct answer. In the set of questions, 89 are for this article, so those are correct by default. Of 2505, got 
+Interestingly, for BadAnswerer, the results were better than expected:
 
 BadAnswerer: Of 2505 total questions, the correct article was found 89 times and the correct sentence was found 4 times.
 
@@ -135,15 +142,24 @@ Next method simply used RAKE keyword search. Of 2505 questions, got 1453 correct
 
 KeywordAnswerer: Of 2505 total questions, the correct article was found 1453 times and the correct sentence was found 769 times.
 
+Next method - broke RAKE keywords into component pieces. For instance, from the question: "On what did Skousen analyze ink and pencil remnants?" we previously found only 2 compound keywords ("skousen analyze ink" "pencil remnants"); now we find 5 ("skousen" "analyze" "ink" "pencil" "remnants")
+Of 2505 total questions, the correct article was found 2206 times and the correct sentence was found 1380 times. (55\%)
+
+Next method - blacklisting just two words ("one", "type"), which seem to be particular to questions, did not improve results.
+
+While preparing to add NE utiliation, explored how question words are used. There is a list of questions, below, with multiple question words in a single question. Need to use better system (POS tagging? syntatic analysis?)
+
+Some difficulty when trying to find meronyms and holonyms... because it's not quite as simple as that. More hours than I'm proud to admit were spent debugging, when in fact the proper solution is that wordNet breaks meronyms and holonyms into substance and part types.
+
 \subsection{Pending Issues}
 
-Using scipy statistics
+We are trying to apply scipy statistics to the score results, but get ridiculous and plainly incorrect p-values and confidence intervals (overestimating precision).
 
 \subsection{Potential Improvements}
 
 Time management skills, for real, am I right?!
 
-Further work would employ more of the techniques found in \texttt{Falcon}, 2000 \cite{falcon2000}. 
+Further work would employ more of the techniques found in \texttt{Falcon}, 2000 \cite{falcon2000}.
 
 \bibliography{my}{}
 \bibliographystyle{plain}
