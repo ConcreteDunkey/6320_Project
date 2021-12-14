@@ -5,10 +5,10 @@ from answerer import \
 from nlp_solr import connect_solr
 from training_test import import_q_a, all_q_a, test_q_a
 from task1 import prep_output_dir, OUTPUT_DIR
+import scipy.stats as st
 
-
-SAVE_PLOT = True
-# SAVE_PLOT = False
+# SAVE_PLOT = True
+SAVE_PLOT = False
 
 
 def count_correctly_answered_questions(questions, solr_core, method, detailed_results=False):
@@ -34,13 +34,8 @@ def count_correctly_answered_questions(questions, solr_core, method, detailed_re
             corr_sent_scores.append(res_scores)
         else:
             incorr_sent_scores.append(res_scores)
-        # elif detailed_results:
-        #     print(f"Predicted {int(res_art)}, actually {question['article']}.")
-        #     print(f"   Question: {question['q']}")
-        #     print(f"   Guessed answer sentence: {res_sent}")
-        #     print(f"   Answer should contain: {question['a']}")
     old_scores_list = [corr_art_scores, incorr_art_scores, corr_sent_scores, incorr_sent_scores]
-    labels_list = ["sents T", "sents F", "arts T", "art F"]
+    labels_list = ["sents T", "sents F", "arts T", "arts F"]
     scores_list = []
     for scores in old_scores_list:
         scores_list.append(np.array(scores))
@@ -49,10 +44,10 @@ def count_correctly_answered_questions(questions, solr_core, method, detailed_re
 
     print_score_statistics(tops, "top scores")
     print_score_statistics(deltas, "top two score deltas")
-    # plot_score_boxplots(tops, "Top Scores, Random Question Subset (100)")
-    # plot_score_boxplots(deltas, "Top Two Scores Delta, Random Question Subset (100)")
-    plot_score_boxplots(tops, "Top Scores, All Questions")
-    plot_score_boxplots(deltas, "Top Two Scores Delta, All Questions")
+    plot_score_boxplots(tops, "Top Scores, Random Question Subset (100)")
+    plot_score_boxplots(deltas, "Top Two Scores Delta, Random Question Subset (100)")
+    # plot_score_boxplots(tops, "Top Scores, All Questions")
+    # plot_score_boxplots(deltas, "Top Two Scores Delta, All Questions")
     return correct_art, correct_sent
 
 
@@ -66,11 +61,45 @@ def top_scores(scores):
 
 
 def print_score_statistics(scores_dict, scores_type_str):
+    summary = {}
     for key in scores_dict:
+        _key = key.replace(' ', '_')
+        summary[_key] = {'mean': np.mean(scores_dict[key]),
+                         'sd': np.std(scores_dict[key]),
+                         'n': len(scores_dict[key])}
         print("For {} {}, mean {:.2f}, sd {:.2f}".format(scores_type_str,
                                                          key,
-                                                         np.mean(scores_dict[key]),
-                                                         np.std(scores_dict[key])))
+                                                         summary[_key]['mean'],
+                                                         summary[_key]['sd']))
+    key_types = []
+    for key in summary.keys():
+        if key.rsplit('_', 1)[0] not in key_types:
+            key_types.append(key.rsplit('_', 1)[0])
+    for key_type in key_types:
+        t_label = key_type + ' T'
+        f_label = key_type + ' F'
+        t_scores = scores_dict[t_label]
+        f_scores = scores_dict[f_label]
+        t = st.ttest_ind(t_scores, f_scores, equal_var=False)
+        alpha = 0.99
+        t_interval = st.t.interval(alpha=alpha, df=len(t_scores) - 1,
+                                   loc=np.mean(t_scores),
+                                   scale=st.sem(t_scores))
+        f_interval = st.t.interval(alpha=alpha, df=len(f_scores) - 1,
+                                   loc=np.mean(f_scores),
+                                   scale=st.sem(f_scores))
+        # Disregard pycharm warning in following line
+        print("Test that intervals are the same, for {} {}, "
+              "p-value is {:2e}".format("articles" if key_type == "arts" else "sentences",
+                                        scores_type_str,
+                                        t.pvalue))
+        print("With alpha={}, score interval for correct answers is {:.2f} to {:.2f},"
+              " score interval for incorrect answers is {:.2f} to {:.2f}.".format(alpha,
+                                                                                  t_interval[0],
+                                                                                  t_interval[1],
+                                                                                  f_interval[0],
+                                                                                  f_interval[1]))
+        d = 0
 
 
 def plot_score_boxplots(scores_dict, label):
@@ -87,7 +116,7 @@ def plot_score_boxplots(scores_dict, label):
     plt.setp(bp['fliers'], markersize=3.0)
     if SAVE_PLOT:
         out_dir = prep_output_dir(OUTPUT_DIR)
-        output_filename = 'boxplot ' + label.replace(',', '-')+'.pdf'
+        output_filename = 'boxplot ' + label.replace(',', '-') + '.pdf'
         output_file = out_dir / output_filename
         plt.savefig(output_file)
     plt.show()
@@ -95,8 +124,8 @@ def plot_score_boxplots(scores_dict, label):
 
 def test():
     solr_core = connect_solr()
-    # test_only = True
-    test_only = False
+    test_only = True
+    # test_only = False
     test_num_q = 100
     test_seed = 1
     method = ScoreCheckAnswerer

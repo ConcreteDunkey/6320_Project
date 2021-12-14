@@ -85,29 +85,38 @@
 
 \begin{center}\huge{Natural Language, Processed Unnaturally}\end{center}
 
+Hello Ximeng! Please note that this is a very preliminary draft. We will certainly be updating this, but wanted to give you a preview.
+
 \section{Problem Description}
 
-This is the first section.
+Given a limited knowledge set, answer several questions pertaining to it.
 
-adsfasdf
+The data is a portion of the Stanford Question Answering Dataset (SQuAD). It consists of 30 articles and over 2500 questions.  We were provided some data with which to develop our solutions. The solution will be tested with unseen questions pertaining to those 30 articles. Thus, in the test environment, preprocessed articles are able to be used.
 
 \section{Proposed Solution}
 
-This is the second section
+Our solution really does a decent job with task 1 and 3, and has a thought-through-for-many-hours-but-still-nonfunctioning answerer for task 2. Currently, the best performing method uses a simple keyword search, with keywords broken into individual tokens.
 
-asdfasdgf
+We use established libraries and software for processing and storing NLP information from the articles. Each question is similarly processed. We hope to establish a good method for processing questions based on \texttt{Lasso}, 2000 \cite{lasso2000}. For finding keywords, 
 
 \section{Full Implementation Details}
 
-adsf
+blah
 
 \subsection{Programming Tools}
 
-asdf
+All work is performed in Python.
+
+The relational database used is \texttt{solr} \cite{solr}. It is Java-based, open-source, enterprise-level, and developed by contributors to the Apache Software Foundation.
+
+The NLP pipeline uses many tools. NLTK is used for tokenization and POS-tagging \cite{nltk}. It is used in conjunction with WordNet for lemmatization and finding synonyms \cite{wordnet}. Named entities and parse trees are established using spaCy \cite{spacy2}.
+
+When reading sentence, the RAKE (Rapid Automatic Keyword Extraction) algorithm is used. It was described by Rose, et al. in 2010 \cite{rake1}. The library implemention by Sharma leverages the strengths of nltk \cite{rake2}.
+
 
 \subsection{Architectural Diagram}
 
-asdf
+[Architectural Diagram to be developed]
 
 \subsection{Results and Error Analysis}
 
@@ -128,17 +137,15 @@ KeywordAnswerer: Of 2505 total questions, the correct article was found 1453 tim
 
 \subsection{Pending Issues}
 
-asdf
+Using scipy statistics
 
 \subsection{Potential Improvements}
 
-Jim's time management, for real
+Time management skills, for real, am I right?!
 
-%\begin{center}
-%\vspace{2in}
-%We are 
-%
-%\vspace{1in}
-%\Huge Natural Language, Processed Unnaturally
-%\end{center}
+Further work would employ more of the techniques found in \texttt{Falcon}, 2000 \cite{falcon2000}. 
+
+\bibliography{my}{}
+\bibliographystyle{plain}
+
 \end{document}
