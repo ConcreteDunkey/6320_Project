@@ -43,10 +43,13 @@ def get_sentence_given_question(question):
 def get_tokens_of_interest_given_a_question(question):
     doc = NLP(question)
     token_of_interest = []
+    dependency_candidates = ['nsubj', 'dobj', 'nobj', 'pobj', 'ROOT', 'acl', 'nummod','compound', 'amod', 'xcomp'
+                          , "npadvmod", "acomp", "pcomp","conj","nsubjpass","poss", "attr", "advmod"]
     for token in doc:
-        if token.dep_ in ['nsubj', 'dobj', 'nobj', 'pobj', 'ROOT', 'acl', 'nummod','compound', 'amod', 'xcomp'
-                          , "npadvmod", "acomp", "pcomp","conj","nsubjpass","poss", "attr", "advmod"]:
+        if token.dep_ in dependency_candidates and (token.is_stop!=True):
             token_of_interest.append(token.text)
+
+
 
     ner_list = []
     ner_label = []
@@ -86,6 +89,9 @@ def get_best_overlap_score(ids, docs, token_of_interest, ner_list):
     return (article_id, sentence, overlap, overlap_buffer)
 
 
+
+
+
 def get_wn_pos(tag):
     res = None
     if tag.startswith('N'):
@@ -97,7 +103,8 @@ def get_wn_pos(tag):
     elif tag.startswith('R'):
         res = nltk.corpus.wordnet.ADV
     else:
-        print("returning empty")
+        # print("returning empty")
+        print("------------------------", tag)
         res = ''
     return res
 
