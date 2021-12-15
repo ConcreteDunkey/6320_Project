@@ -26,6 +26,34 @@ def get_wn_pos(tag):
     return res
 
 
+def art_pipeline_modified(article):
+    sentences = get_sentences(article)
+    tokens = get_tokens(article)
+    sent_tokens = []
+    for each_sentence in sentences:
+        sent_tokens.append(get_tokens(each_sentence))
+    tagged_text = get_tagged_text(tokens)
+    sent_tagged = []
+    for each_token in sent_tokens:
+        sent_tagged.append(get_tagged_text(each_token))
+
+    sent_lemmatized_text = []
+    for sent in sent_tagged:
+        sent_lemmatized_text.append([' '.join(get_lemmas(sent))])
+
+    # sent_lemmatized_text = [get_lemmas(each_tagged_text) for each_tagged_text in sent_tagged_text]
+    lemmatized_text = get_lemmas(tagged_text)
+    # named_entities, _ = get_named_entities_and_parse_trees(article)
+    sentence_ner = []
+    parse_tree = []
+    for each_sentence in sentences:
+        ner_parse = get_named_entities_and_parse_trees(each_sentence)
+        sentence_ner.append([ner_parse[0]])
+        parse_tree.append([ner_parse[1]])
+    return sentences, tokens, tagged_text, lemmatized_text, sent_lemmatized_text, sentence_ner, parse_tree
+
+
+
 def art_pipeline(article):
     sentences = get_sentences(article)
     tokens = get_tokens(article)

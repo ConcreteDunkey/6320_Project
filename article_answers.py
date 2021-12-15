@@ -28,14 +28,13 @@ def get_single_keywords(question):
             single_keywords.append(subkey)
     return single_keywords
 
-
 def build_query(contents_or_other, keywords):
+
     prefix = '(' + contents_or_other+ ':"'
     postfix = '"'
     infix = '" OR ' + contents_or_other + ':"'
     keyword_string = prefix + infix.join(keywords) + postfix + ')'
     return keyword_string
-
 
 def get_wn_pos(tag):
     res = None
@@ -60,7 +59,7 @@ class Art_answerer:
         self.art_args = {
             'hl': 'true',
             'rows': 30,
-            'fl': 'id,contents,score'}
+            'fl': 'id,contents,sentences, sentences_lemmas, sentences_ner, sentences_parse, score'}
 
     def answer(self, question):
         results = self.this_method(question)
@@ -71,7 +70,6 @@ class Art_answerer:
             art = []
             sentence = []
             for results_each in results:
-
                 single_art = results_each['id'].split('_')[0]
                 # print(results_each['id'])
                 art.append(single_art)
@@ -79,7 +77,7 @@ class Art_answerer:
                 # if single_art[1] == '0':
                 #     sentence = ''
                 # else:
-                sentence.append(results_each['contents'])
+                sentence.append((results_each['contents'],results_each['sentences'],results_each['sentences_lemmas'], results_each['sentences_ner'], results_each['sentences_parse']))
                 # art = art.split('_')[0]
         return art, sentence
 
@@ -121,6 +119,7 @@ class ArticleEnhancedAnswerer(Art_answerer):
         # query = keyword_string
         # query += ') AND type:"art" '
         results = self.def_search(query)
+        # print(results.docs[1])
         arr = results.docs[:5].copy()
         # print(query)
         # arr = [item for sublist in arr for item in sublist.copy()]
