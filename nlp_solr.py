@@ -1,6 +1,6 @@
 import pysolr
 import time
-from nlp_tools import art_pipeline
+from nlp_tools import art_pipeline, art_pipeline_modified
 from pathlib import Path
 
 
@@ -39,7 +39,31 @@ def load_articles():
             articles_content[file.stem] = ' '.join(content)
     return articles_content
 
-def new_load_solr():
+
+# def new_load_solr():
+#     global solr_core
+#     num_docs = 0  # Keep track of number of additions
+#     SolrTimer.lap()
+#     articles_content = load_articles()
+#     for article in articles_content:
+#         sentences, tokens, tagged_text, lemmatized_text, sent_lemmas, sent_ner, sent_parse = art_pipeline_modified(articles_content[article])
+#         solr_core.add([{
+#             'id': article + "_99999",
+#             'contents': articles_content[article],
+#             'type': 'art',
+#             'tokens': tokens,
+#             'tagged_text': tagged_text,
+#             'lemmatized_text': lemmatized_text,
+#             'sentences': sentences,
+#             'sentences_lemmas':sent_lemmas,
+#             'sentences_ner': sent_ner,
+#             'sentences_parse': sent_parse
+#         }])
+#         print(f"Added article {article} after {SolrTimer.lap()}")
+#     solr_core.commit()
+
+
+def load_solr():
     global solr_core
     num_docs = 0  # Keep track of number of additions
     SolrTimer.lap()
@@ -54,28 +78,10 @@ def new_load_solr():
             'tagged_text': tagged_text,
             'lemmatized_text': lemmatized_text,
             'sentences': sentences,
+            # 'named_entity': ner_text,
             'sentences_lemmas':sent_lemmas,
             'sentences_ner': sent_ner,
             'sentences_parse': sent_parse
-        }])
-        print(f"Added article {article} after {SolrTimer.lap()}")
-    solr_core.commit()
-
-def load_solr():
-    global solr_core
-    num_docs = 0  # Keep track of number of additions
-    SolrTimer.lap()
-    articles_content = load_articles()
-    for article in articles_content:
-        sentences, tokens, tagged_text, lemmatized_text, ner_text = art_pipeline(articles_content[article])
-        solr_core.add([{
-            'id': article + "_0",
-            'contents': articles_content[article],
-            'type': 'art',
-            'tokens': tokens,
-            'tagged_text': tagged_text,
-            'lemmatized_text': lemmatized_text,
-            'named_entity': ner_text
         }])
         num_docs += 1
         for i, sentence in enumerate(sentences):
@@ -96,8 +102,8 @@ def load_solr():
 
 def build_solr_core():
     connect_solr()
-    # load_solr()
-    new_load_solr()
+    load_solr()
+    # new_load_solr()
 
 
 if __name__ == '__main__':

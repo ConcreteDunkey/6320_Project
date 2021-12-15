@@ -131,11 +131,11 @@ def all_q_a(q_a_dict):
     return q_a_list
 
 
-def test_q_a(q_a, num_q, seed):
-    random.seed(seed)
-    test_q_a_list = copy.deepcopy(q_a)
-    random.shuffle(test_q_a_list)
-    return test_q_a_list[0: num_q]
+# def test_q_a(q_a, num_q, seed):
+#     random.seed(seed)
+#     test_q_a_list = copy.deepcopy(q_a)
+#     random.shuffle(test_q_a_list)
+#     return test_q_a_list[0: num_q]
 
 
 
