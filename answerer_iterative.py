@@ -1,7 +1,5 @@
 from answerer import Answerer, get_single_keywords
 from nltk.corpus import stopwords
-# import spacy
-from spacy.pipeline import Lemmatizer
 from nlp_tools import \
     find_all_quotations_with_mark, \
     get_tokens, \
@@ -10,7 +8,6 @@ from nlp_tools import \
     lazy_tree
 
 stop_words = set(stopwords.words('english'))
-# NLP = spacy.load("en_core_web_sm")
 
 
 def find_all_quotations(question):
@@ -39,7 +36,8 @@ def key_huer1(question):
 def rec_find_depth_of_clauses(root, stop_pos_tags):
     res = {'token': root['token'],
            'pos': root['pos'],
-           'dep': root['dep']}
+           'dep': root['dep'],
+           'lemma': root['lemma']}
     if 'children' in root:
         res['children'] = []
         for child in root['children']:
@@ -70,7 +68,7 @@ def find_clause_root_and_mods(tree, find_dep_tag, keep_pos, stop_pos_tags):
         clauses = [clauses]
     for clause in clauses:
         flat_clause = lazy_flatten_tree(clause)
-        keys.extend([(token['token'], token['pos']) for token in flat_clause if token['pos'] in keep_pos])
+        keys.extend([(token['lemma']) for token in flat_clause if token['pos'] in keep_pos])
     return keys
 
 

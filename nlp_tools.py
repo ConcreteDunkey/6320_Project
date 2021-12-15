@@ -95,7 +95,8 @@ def lazy_tree(root):
 def lazy_tree_rec(node):
     res = {'token': str(node.orth_),
            'pos': str(node.tag_),
-           'dep': str(node.dep_)}  # Dependency
+           'dep': str(node.dep_),
+           'lemma': str(node.lemma_)}  # Dependency
     children = [x for x in node.children]
     if children:
         res['children'] = [lazy_tree_rec(x) for x in children]
@@ -110,7 +111,8 @@ def lazy_flat_tree(root):
 def lazy_flat_tree_rec(node):
     res = [{'token': str(node.orth_),
             'pos': str(node.tag_),
-            'dep': str(node.dep_)}]  # Dependency
+            'dep': str(node.dep_),
+            'lemma': str(node.lemma_)}]  # Dependency
     for child in node.children:
         res.extend(lazy_flat_tree_rec(child))
     return res
@@ -124,7 +126,8 @@ def lazy_flatten_tree(root_dict):
 def lazy_flatten_tree_rec(root_dict):
     res = [{'token': root_dict['token'],
             'pos': root_dict['pos'],
-            'dep': root_dict['dep']}]
+            'dep': root_dict['dep'],
+            'lemma': root_dict['lemma']}]
     if 'children' in root_dict:
         for child in root_dict['children']:
             res.extend(lazy_flatten_tree_rec(child))
