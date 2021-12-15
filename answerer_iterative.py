@@ -402,3 +402,15 @@ class CompoundLassoAnswerer(Answerer):
         results, scores, flag = self.this_method(question)
         art, sentence, scores = make_scorable_results(results, scores)
         return art, sentence, (scores, flag)
+
+
+class CompoundLassoAnswererFinal(CompoundLassoAnswerer):
+    def __init__(self, solr, max_level=6):
+        super().__init__(solr)
+        self.simple_lasso_level = max_level
+        self.all_keywords = None
+
+    def answer(self, question):
+        results, scores, flag = self.this_method(question)
+        art, sentence, scores = make_scorable_results(results, scores)
+        return art, sentence
