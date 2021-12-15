@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 from answerer import \
     ScoreCheckAnswerer
 from answerer_iterative import \
-    SimpleLassoAnswerer
+    SimpleLassoAnswerer, \
+    CompoundLassoAnswerer
 from nlp_solr import connect_solr
 from training_test import import_q_a, all_q_a, test_q_a
 from task1 import prep_output_dir, OUTPUT_DIR
@@ -22,11 +23,17 @@ def count_correctly_answered_questions(questions, solr_core, method, detailed_re
     incorr_art_scores = []
     corr_sent_scores = []
     incorr_sent_scores = []
+    flagged = 0
     # for question in questions:
     for i, question in enumerate(questions):
         # if i < 1313:
         #     continue
+        res_flag = None
         res_art, res_sent, res_scores = a.answer(question['q'])
+        if type(res_scores) is tuple:
+            # Janky patching - Jim did this. Don't blame Ziyad.
+            res_flag = res_scores[1]
+            res_scores = res_scores[0]
         if question['article'] == int(res_art):
             correct_art += 1
             corr_art_scores.append(res_scores)
@@ -37,6 +44,8 @@ def count_correctly_answered_questions(questions, solr_core, method, detailed_re
             corr_sent_scores.append(res_scores)
         else:
             incorr_sent_scores.append(res_scores)
+        if res_flag is not None and res_flag > 0:
+            flagged += 1
     old_scores_list = [corr_art_scores, incorr_art_scores, corr_sent_scores, incorr_sent_scores]
     labels_list = ["sents T", "sents F", "arts T", "arts F"]
     scores_list = []
@@ -47,6 +56,7 @@ def count_correctly_answered_questions(questions, solr_core, method, detailed_re
 
     print_score_statistics(tops, "top scores")
     print_score_statistics(deltas, "top two score deltas")
+    print(f"Flagged: {flagged}")
 
     # plot_score_boxplots(tops, "Top Scores, Random Question Subset (100)")
     # plot_score_boxplots(deltas, "Top Two Scores Delta, Random Question Subset (100)")
@@ -143,26 +153,29 @@ def plot_score_boxplots(scores_dict, label):
 
 def test():
     solr_core = connect_solr()
-    test_only = True
-    # test_only = False
+    # test_only = True
+    test_only = False
     test_num_q = 100
     test_seed = 1
-    methods = [{'class': ScoreCheckAnswerer,
-                'label': "RAKE Keywords"},
-               {'class': SimpleLassoAnswerer.single_l1,
-                'label': "Lasso Keywords, Level 1"},
-               {'class': SimpleLassoAnswerer.single_l2,
-                'label': "Lasso Keywords, Level 2"},
-               {'class': SimpleLassoAnswerer.single_l3,
-                'label': "Lasso Keywords, Level 3"},
-               {'class': SimpleLassoAnswerer.single_l4,
-                'label': "Lasso Keywords, Level 4"},
-               {'class': SimpleLassoAnswerer.single_l5,
-                'label': "Lasso Keywords, Level 5"},
-               {'class': SimpleLassoAnswerer.single_l6,
-                'label': "Lasso Keywords, Level 6"},
-               {'class': SimpleLassoAnswerer.single_l7,
-                'label': "Lasso Keywords, Level 7"}
+    methods = [
+               # {'class': ScoreCheckAnswerer,
+               #  'label': "RAKE Keywords"},
+               {'class': CompoundLassoAnswerer,
+                'label': "Compound Lasso Answerer"},
+               # {'class': SimpleLassoAnswerer.single_l1,
+               #  'label': "Lasso Keywords, Level 1"},
+               # {'class': SimpleLassoAnswerer.single_l2,
+               #  'label': "Lasso Keywords, Level 2"},
+               # {'class': SimpleLassoAnswerer.single_l3,
+               #  'label': "Lasso Keywords, Level 3"},
+               # {'class': SimpleLassoAnswerer.single_l4,
+               #  'label': "Lasso Keywords, Level 4"},
+               # {'class': SimpleLassoAnswerer.single_l5,
+               #  'label': "Lasso Keywords, Level 5"},
+               # {'class': SimpleLassoAnswerer.single_l6,
+               #  'label': "Lasso Keywords, Level 6"},
+               # {'class': SimpleLassoAnswerer.single_l7,
+               #  'label': "Lasso Keywords, Level 7"}
                ]
     q_a = import_q_a('data.txt')
     # q_a = import_q_a('new_data.txt')

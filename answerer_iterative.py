@@ -6,6 +6,7 @@ from nlp_tools import \
     NLP, \
     lazy_flatten_tree, \
     lazy_tree
+# from score_check import delta_scores
 
 stop_words = set(stopwords.words('english'))
 
@@ -117,13 +118,18 @@ def new_keywords(keys_so_far, maybe_new_keys):
     return actually_new_keys
 
 
-def lasso_keywords(question, level):
-    keywords_by_level = key_huer(question)
+def condense_lasso_keywords(keywords_by_level, level):
     keywords = []
     for i in range(len(keywords_by_level)):
         if i == level:
             break
         keywords.extend(new_keywords(keywords, keywords_by_level[i]))
+    return keywords
+
+
+def lasso_keywords(question, level):
+    keywords_by_level = key_huer(question)
+    keywords = condense_lasso_keywords(keywords_by_level, level)
     return keywords
 
 
@@ -134,6 +140,24 @@ def lasso_keywords_alt(question, levels):
         if i+1 in levels:
             keywords.extend(new_keywords(keywords, keywords_by_level[i]))
     return keywords
+
+
+def make_and_query(keywords):
+    return make_a_query(keywords, "AND")
+
+
+def make_or_query(keywords):
+    return make_a_query(keywords, "OR")
+
+
+def make_a_query(keywords, q_type):
+    prefix = '(contents:"'
+    postfix = '"'
+    infix = f'" {q_type} contents:"'
+    keyword_string = prefix + infix.join(keywords) + postfix
+    query = keyword_string
+    query += ') AND type:"sentence" '
+    return query
 
 
 class SimpleLassoAnswerer(Answerer):
@@ -199,39 +223,141 @@ class SimpleLassoAnswerer(Answerer):
         # if len(keywords) > 0:
         #     print(question)
         #     print(keywords)
-        prefix = '(contents:"'
-        postfix = '"'
-        infix = '" AND contents:"'
-        keyword_string = prefix + infix.join(keywords) + postfix
-        query = keyword_string
-        query += ') AND type:"sentence" '
+        query = make_and_query(keywords)
         results = self.def_search(query)
-        # results = {'docs': []}
+        # results = {'docs': []}  # For debugging; return empty
         scores = []
         for res in results.docs[0:2]:
             scores.append(res['score'])
-        # print(scores)
+        # print(scores)  # For debugging; print top 2 scores
         return results, scores
 
     def answer(self, question):
         results, scores = self.this_method(question)
-        if len(results) == 0:
-            art = 0
-            sentence = ''
-            scores = [0, 0]
-        elif len(results) == 1:
-            art = results.docs[0]['id']
-            if art.split('_')[1] == '0':
-                sentence = ''
-            else:
-                sentence = results.docs[0]['contents'][0]
-            art = art.split('_')[0]
-            scores = [scores[0], 0]
-        else:
-            art = results.docs[0]['id']
-            if art.split('_')[1] == '0':
-                sentence = ''
-            else:
-                sentence = results.docs[0]['contents'][0]
-            art = art.split('_')[0]
+        art, sentence, scores = make_scorable_results(results, scores)
         return art, sentence, scores
+
+
+def make_scorable_results(results, scores):
+    if len(results) == 0:
+        art = 0
+        sentence = ''
+        scores = [0, 0]
+    elif len(results) == 1:
+        art = results.docs[0]['id']
+        if art.split('_')[1] == '0':
+            sentence = ''
+        else:
+            sentence = results.docs[0]['contents'][0]
+        art = art.split('_')[0]
+        scores = [scores[0], 0]
+    else:
+        scores = scores[0:2]
+        art = results.docs[0]['id']
+        if art.split('_')[1] == '0':
+            sentence = ''
+        else:
+            sentence = results.docs[0]['contents'][0]
+        art = art.split('_')[0]
+    return art, sentence, scores
+
+
+def delta_scores(scores):
+    if len(scores) > 1:
+        res = scores[0] - scores[1]
+    elif len(scores) == 1:
+        res = scores[0]
+    else:
+        res = [0]
+    return res
+
+
+class CompoundLassoAnswerer(Answerer):
+    # def __init__(self, solr, max_level=6, levels=None):
+    def __init__(self, solr, max_level=6):
+        super().__init__(solr)
+        # self.simple_lasso_levels = levels
+        self.simple_lasso_level = max_level
+        # if levels is None:
+        #     self.keyword_method = lasso_keywords
+        # else:
+        #     self.keyword_method = lasso_keywords_alt
+
+    # @classmethod
+    # def basic(cls, solr):
+    #     return cls(solr)
+    #
+    # @classmethod
+    # def single_lvl(cls, solr, max_level):
+    #     return cls(solr, max_level)
+    #
+    # @classmethod
+    # def single_l1(cls, solr):
+    #     return cls(solr, max_level=1)
+    #
+    # @classmethod
+    # def single_l2(cls, solr):
+    #     return cls(solr, max_level=2)
+    #
+    # @classmethod
+    # def single_l3(cls, solr):
+    #     return cls(solr, max_level=3)
+    #
+    # @classmethod
+    # def single_l4(cls, solr):
+    #     return cls(solr, max_level=4)
+    #
+    # @classmethod
+    # def single_l5(cls, solr):
+    #     return cls(solr, max_level=5)
+    #
+    # @classmethod
+    # def single_l6(cls, solr):
+    #     return cls(solr, max_level=6)
+    #
+    # @classmethod
+    # def single_l7(cls, solr):
+    #     return cls(solr, max_level=7)
+    #
+    # @classmethod
+    # def many_lvl(cls, solr, levels):
+    #     return cls(solr, levels=levels)
+    #
+    # def this_keyword_grabber(self, question):
+    #     if self.simple_lasso_levels is None:
+    #         return self.keyword_method(question, self.simple_lasso_level)
+    #     else:
+    #         return self.keyword_method(question, self.simple_lasso_levels)
+
+    def this_method(self, question):
+        all_keywords = key_huer(question)
+        flag = 0
+        while 1 == 1:
+            keywords = condense_lasso_keywords(all_keywords, 6)
+            query = make_and_query(keywords)
+            results = self.def_search(query)
+            scores = []
+            for res in results.docs[0:20]:
+                scores.append(res['score'])
+            if len(scores) > 0:
+                if scores[0] > 10:
+                    flag = 1
+                    break
+                # a = scores[0]
+                # b = delta_scores(scores)
+                # if len(scores)>1 and scores[0] > 7.5 and delta_scores(scores) > 4.5:
+                #     flag = 2
+                #     break
+            # if len(scores) > 0 and scores[0] > 2:
+            #     break
+            scores = []
+            for res in results.docs[0:2]:
+                scores.append(res['score'])
+            results = []
+            break
+        return results, scores, flag
+
+    def answer(self, question):
+        results, scores, flag = self.this_method(question)
+        art, sentence, scores = make_scorable_results(results, scores)
+        return art, sentence, (scores, flag)
