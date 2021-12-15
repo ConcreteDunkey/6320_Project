@@ -102,6 +102,35 @@ def lazy_tree_rec(node):
     return res
 
 
+def lazy_flat_tree(root):
+    res = lazy_flat_tree_rec(root)
+    return res
+
+
+def lazy_flat_tree_rec(node):
+    res = [{'token': str(node.orth_),
+            'pos': str(node.tag_),
+            'dep': str(node.dep_)}]  # Dependency
+    for child in node.children:
+        res.extend(lazy_flat_tree_rec(child))
+    return res
+
+
+def lazy_flatten_tree(root_dict):
+    res = lazy_flatten_tree_rec(root_dict)
+    return res
+
+
+def lazy_flatten_tree_rec(root_dict):
+    res = [{'token': root_dict['token'],
+            'pos': root_dict['pos'],
+            'dep': root_dict['dep']}]
+    if 'children' in root_dict:
+        for child in root_dict['children']:
+            res.extend(lazy_flatten_tree_rec(child))
+    return res
+
+
 def get_all_nyms(lemmatized_text):
     nym_types = ['hypernyms',
                  'hyponyms',
