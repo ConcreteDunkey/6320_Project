@@ -18,9 +18,13 @@ def do_task_3():
     output_file_name = 'NLP_QA.csv'
     questions = load_questions('new_question_list.txt')
     solr_core = connect_solr()
-    # method = SingleKeywordAnswerer
-    method = CompoundLassoAnswererFinal
-    # method = ArtAnswerer
+    algo = 23089
+    if algo == 1:
+        method = SingleKeywordAnswerer
+    elif algo == 2:
+        method = CompoundLassoAnswererFinal
+    else:
+        method = Art_answerer
     answerer = method(solr_core)
     results = []
     for question in questions:
