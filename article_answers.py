@@ -28,13 +28,14 @@ def get_single_keywords(question):
             single_keywords.append(subkey)
     return single_keywords
 
-def build_query(contents_or_other, keywords):
 
+def build_query(contents_or_other, keywords):
     prefix = '(' + contents_or_other+ ':"'
     postfix = '"'
     infix = '" OR ' + contents_or_other + ':"'
     keyword_string = prefix + infix.join(keywords) + postfix + ')'
     return keyword_string
+
 
 def get_wn_pos(tag):
     res = None

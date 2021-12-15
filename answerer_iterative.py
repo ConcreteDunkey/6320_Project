@@ -72,17 +72,19 @@ def find_clause_root_and_mods(tree, find_dep_tag, keep_pos, stop_pos_tags):
     return keys
 
 
+keep_np_pos = ['ADJ', 'ADP', 'ADV', 'NOUN', 'NUM', 'PROPN', 'VERB',
+               '$', '#', 'CD', 'FW', 'JJ', 'JJR', 'JJS', 'MD', 'NN', 'NNP',
+               'NNPS', 'NNS', 'RB', 'RBR', 'RBS', 'RP', "VB", "VBD", "VBG",
+               "VBN", "VBP", "VBZ", 'ADD', 'GW']
+stop_np_pos = []
+keep_vp_pos = ['ADP', 'ADV', 'VERB', 'MD', 'RB', 'RBR', 'RBS', 'RP', "VB",
+               "VBD", "VBG", "VBN", "VBP", "VBZ", 'GW']
+stop_vp_pos = ['NOUN', 'NN', 'NNP', 'NNPS', 'NNS', 'ADJ', 'PROPN', 'JJ',
+               'JJR', 'JJS', '.', 'WP', '#']
+
+
 def key_huer(question):
     # some of these are guesses...
-    keep_np_pos = ['ADJ', 'ADP', 'ADV', 'NOUN', 'NUM', 'PROPN', 'VERB',
-                   '$', '#', 'CD', 'FW', 'JJ', 'JJR', 'JJS', 'MD', 'NN', 'NNP',
-                   'NNPS', 'NNS', 'RB', 'RBR', 'RBS', 'RP', "VB", "VBD", "VBG",
-                   "VBN", "VBP", "VBZ", 'ADD', 'GW']
-    stop_np_pos = []
-    keep_vp_pos = ['ADP', 'ADV', 'VERB', 'MD', 'RB', 'RBR', 'RBS', 'RP', "VB",
-                   "VBD", "VBG", "VBN", "VBP", "VBZ", 'GW']
-    stop_vp_pos = ['NOUN', 'NN', 'NNP', 'NNPS', 'NNS', 'ADJ', 'PROPN', 'JJ',
-                   'JJR', 'JJS', '.', 'WP', '#']
     huer_keys = []
     # Level 1
     huer_keys.append(key_huer1(question))
@@ -102,8 +104,8 @@ def key_huer(question):
     huer_keys.append(find_clause_root_and_mods(tree, 'pobj', keep_np_pos, stop_np_pos))
     # Level 7 (verbs)
     huer_keys.append(find_clause_root_and_mods(tree, 'ROOT', keep_vp_pos, stop_vp_pos))
-    # Level 8 (focus)
-    huer_keys.append(find_clause_root_and_mods(tree, 'pobj', keep_np_pos, stop_np_pos))
+    # # Level 8 (focus)
+    # huer_keys.append(find_clause_root_and_mods(tree, 'pobj', keep_np_pos, stop_np_pos))
     return huer_keys
 
 
@@ -134,57 +136,102 @@ def lasso_keywords_alt(question, levels):
     return keywords
 
 
-class IterativeAnswerer(Answerer):
-    def __init__(self, solr):
+class SimpleLassoAnswerer(Answerer):
+    def __init__(self, solr, max_level=6, levels=None):
         super().__init__(solr)
+        self.simple_lasso_levels = levels
+        self.simple_lasso_level = max_level
+        if levels is None:
+            # self.keyword_method = staticmethod(lasso_keywords)
+            self.keyword_method = lasso_keywords
+        else:
+            # self.keyword_method = staticmethod(lasso_keywords_alt)
+            self.keyword_method = lasso_keywords_alt
 
-    # keyword_method = staticmethod(lasso_keywords)
-    keyword_method = staticmethod(lasso_keywords_alt)
+    @classmethod
+    def basic(cls, solr):
+        return cls(solr)
+
+    @classmethod
+    def single_lvl(cls, solr, max_level):
+        return cls(solr, max_level)
+
+    @classmethod
+    def single_l1(cls, solr):
+        return cls(solr, max_level=1)
+
+    @classmethod
+    def single_l2(cls, solr):
+        return cls(solr, max_level=2)
+
+    @classmethod
+    def single_l3(cls, solr):
+        return cls(solr, max_level=3)
+
+    @classmethod
+    def single_l4(cls, solr):
+        return cls(solr, max_level=4)
+
+    @classmethod
+    def single_l5(cls, solr):
+        return cls(solr, max_level=5)
+
+    @classmethod
+    def single_l6(cls, solr):
+        return cls(solr, max_level=6)
+
+    @classmethod
+    def single_l7(cls, solr):
+        return cls(solr, max_level=7)
+
+    @classmethod
+    def many_lvl(cls, solr, levels):
+        return cls(solr, levels=levels)
+
+    def this_keyword_grabber(self, question):
+        if self.simple_lasso_levels is None:
+            return self.keyword_method(question, self.simple_lasso_level)
+        else:
+            return self.keyword_method(question, self.simple_lasso_levels)
 
     def this_method(self, question):
-        levels = [7]
-        keywords = self.keyword_method(question, levels)
-        # keywords = self.keyword_method(question, 2)
-        # keywords = self.keyword_method(question)
-        if len(keywords) > 0:
-            print(question)
-            print(keywords)
-        # prefix = '(contents:"'
-        # postfix = '"'
-        # infix = '" OR contents:"'
-        # keyword_string = prefix + infix.join(keywords) + postfix
-        # query = keyword_string
-        # query += ') AND type:"sentence" '
-        # # results = self.def_search(query)
-        results = {'docs': []}
+        keywords = self.this_keyword_grabber(question)
+        # if len(keywords) > 0:
+        #     print(question)
+        #     print(keywords)
+        prefix = '(contents:"'
+        postfix = '"'
+        infix = '" AND contents:"'
+        keyword_string = prefix + infix.join(keywords) + postfix
+        query = keyword_string
+        query += ') AND type:"sentence" '
+        results = self.def_search(query)
+        # results = {'docs': []}
         scores = []
-        # for res in results.docs[0:2]:
-        #     scores.append(res['score'])
+        for res in results.docs[0:2]:
+            scores.append(res['score'])
         # print(scores)
         return results, scores
 
     def answer(self, question):
         results, scores = self.this_method(question)
-        art = 0
-        sentence = ''
-        # if len(results) == 0:
-        #     art = 0
-        #     sentence = ''
-        #     scores = [0, 0]
-        # elif len(results) == 1:
-        #     art = results.docs[0]['id']
-        #     if art.split('_')[1] == '0':
-        #         sentence = ''
-        #     else:
-        #         sentence = results.docs[0]['contents'][0]
-        #     art = art.split('_')[0]
-        #     scores = [scores[0], 0]
-        # else:
-        #     art = results.docs[0]['id']
-        #     if art.split('_')[1] == '0':
-        #         sentence = ''
-        #     else:
-        #         sentence = results.docs[0]['contents'][0]
-        #     art = art.split('_')[0]
-        # return art, sentence, scores
-        return art, sentence
+        if len(results) == 0:
+            art = 0
+            sentence = ''
+            scores = [0, 0]
+        elif len(results) == 1:
+            art = results.docs[0]['id']
+            if art.split('_')[1] == '0':
+                sentence = ''
+            else:
+                sentence = results.docs[0]['contents'][0]
+            art = art.split('_')[0]
+            scores = [scores[0], 0]
+        else:
+            art = results.docs[0]['id']
+            if art.split('_')[1] == '0':
+                sentence = ''
+            else:
+                sentence = results.docs[0]['contents'][0]
+            art = art.split('_')[0]
+        return art, sentence, scores

@@ -21,7 +21,7 @@ def do_task_3():
     results = []
     for question in questions:
         res_art, res_sent = answerer.answer(question)
-        results.append([question, res_sent, res_art])
+        results.append([question, res_art, res_sent])
     out_dir = prep_output_dir(OUTPUT_DIR)
     output_file = out_dir / output_file_name
     with open(output_file, 'w', newline='', encoding='utf-8') as data_file:

@@ -8,7 +8,7 @@ from answerer import \
     SingleKeywordWithBlacklistAnswerer, \
     SimpleNEAnswerer,\
     ArticleEnhancedAnswerer
-from answerer_iterative import IterativeAnswerer
+# from answerer_iterative import SimpleLassoAnswerer
 
 from nlp_solr import connect_solr
 
@@ -63,17 +63,17 @@ def count_correctly_answered_questions(questions, solr_core, method, detailed_re
 
 def test():
     solr_core = connect_solr()
-    test_only = True
-    # test_only = False
+    # test_only = True
+    test_only = False
     test_num_q = 100
     test_seed = 0
     # method = BadAnswerer
     # method = KeywordAnswerer
-    # method = SingleKeywordAnswerer
+    method = SingleKeywordAnswerer
     # method = SingleKeywordWithBlacklistAnswerer
     # method = SimpleNEAnswerer
     # method = ArticleEnhancedAnswerer
-    method = IterativeAnswerer
+    # method = SimpleLassoAnswerer
 
     q_a = import_q_a('data.txt')
     # q_a = import_q_a('new_data.txt')
