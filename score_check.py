@@ -10,9 +10,17 @@ from training_test import import_q_a, all_q_a, test_q_a
 from task1 import prep_output_dir, OUTPUT_DIR
 import scipy.stats as st
 
-# SAVE_PLOT = True
-SAVE_PLOT = False
+SAVE_PLOT = True
+# SAVE_PLOT = False
 PLOT_LABEL = None
+#
+# BOXPLOT_TITLE_TOP = "Query Side Top Scores, All Questions"
+# BOXPLOT_TITLE_DELTA = "Query Side Top Two Scores Delta, All Questions"
+
+BOXPLOT_TITLE_TOP = "RAKE Top Scores, All Questions"
+BOXPLOT_TITLE_DELTA = "RAKE Top Two Scores Delta, All Questions"
+# BOXPLOT_TITLE_TOP = "Top Scores, Random Question Subset (100)"
+# BOXPLOT_TITLE_DELTA = "Top Two Scores Delta, Random Question Subset (100)"
 
 
 def count_correctly_answered_questions(questions, solr_core, method, detailed_results=False):
@@ -58,11 +66,8 @@ def count_correctly_answered_questions(questions, solr_core, method, detailed_re
     print_score_statistics(deltas, "top two score deltas")
     print(f"Flagged: {flagged}")
 
-    # plot_score_boxplots(tops, "Top Scores, Random Question Subset (100)")
-    # plot_score_boxplots(deltas, "Top Two Scores Delta, Random Question Subset (100)")
-
-    # plot_score_boxplots(tops, "Top Scores, All Questions")
-    # plot_score_boxplots(deltas, "Top Two Scores Delta, All Questions")
+    plot_score_boxplots(tops, BOXPLOT_TITLE_TOP)
+    plot_score_boxplots(deltas, BOXPLOT_TITLE_DELTA)
     return correct_art, correct_sent
 
 
@@ -158,10 +163,10 @@ def test():
     test_num_q = 100
     test_seed = 1
     methods = [
-               # {'class': ScoreCheckAnswerer,
-               #  'label': "RAKE Keywords"},
-               {'class': CompoundLassoAnswerer,
-                'label': "Compound Lasso Answerer"},
+               {'class': ScoreCheckAnswerer,
+                'label': "RAKE Keywords"},
+               # {'class': CompoundLassoAnswerer,
+               #  'label': "Compound Lasso Answerer"},
                # {'class': SimpleLassoAnswerer.single_l1,
                #  'label': "Lasso Keywords, Level 1"},
                # {'class': SimpleLassoAnswerer.single_l2,

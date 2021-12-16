@@ -60,7 +60,7 @@ if __name__ == '__main__':
     if len(sys.argv) == 1:
         input_file = "new_question_list.txt"
         output_file = "NLP_QA.csv"
-        algo = '3'
+        algo = '2'
         print("Using default settings")
     elif len(sys.argv) == 4:
         input_file = sys.argv[1]
