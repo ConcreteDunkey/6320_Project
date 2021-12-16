@@ -5,7 +5,10 @@ from nlp_tools import \
     get_tokens, \
     NLP, \
     lazy_flatten_tree, \
-    lazy_tree
+    lazy_tree, \
+    get_all_nyms, \
+    get_tagged_text, \
+    get_lemmas
 # from score_check import delta_scores
 
 stop_words = set(stopwords.words('english'))
@@ -114,7 +117,12 @@ def key_huer(question):
 
 def get_synonyms(words):
     # get hyper/hypo/tropo
-    return 7  # TODO
+    tagged_text = get_tagged_text(words)
+    lemmatized_text = get_lemmas(tagged_text)
+    nyms = get_all_nyms(lemmatized_text)
+    all_nyms = nyms['hypernyms'] + nyms['hyponyms'] + nyms['entailments']
+    # print(all_nyms)
+    return all_nyms
 
 
 def new_keywords(keys_so_far, maybe_new_keys):
