@@ -16,6 +16,8 @@ Then, in the Python console:
 * nltk.download('popular')
 * nltk.download('book')  ??
 
+Download and install solr
+* Link to download: https://solr.apache.org/downloads.html
 To start running Solr:
 * navigate to directory
 * open powerterminal
@@ -27,3 +29,9 @@ To run with provided questions:
 * Name file "new_question_list.txt" in main working directory
 * Run task3
 * To use with task1, name file "old_question_list.txt" in main working directory
+* To run the first task use the followng command
+* python task1.py
+* To run the task 2 and 3 for getting the answer sentence given a question file use following command
+* python task3.py <input_file.txt> <output_file.txt> <method-no>
+* python task3.py new_question_list.txt out.csv 3
+* Method 1: Rake Keyword           Method 2: query           Method 3: python
